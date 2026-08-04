@@ -1,0 +1,136 @@
+{
+  "theme": "Huaxin_Group_Theme",
+  "fonts": {
+    "header": "Microsoft YaHei",
+    "body": "Microsoft YaHei"
+  },
+  "colors": {
+    "primary": "44546A",
+    "brand_blue": "374B9B",
+    "brand_red": "E63237",
+    "accent_orange": "ED7D31",
+    "bg_light": "E7E6E6",
+    "accent_yellow": "FFC000",
+    "accent_green": "70AD47"
+  },
+  "bg_rules": {
+    "_comment": "背景图分配总规则：仅封面页(title_slide)和封底页(end_slide)使用 huaxin_bg_title.jpeg；其他所有页面类型（包括但不限于目录页、过渡页、正文页、总结页等）一律使用 huaxin_bg_content.jpeg。",
+    "title_bg": "assets/huaxin_bg_title.jpeg",
+    "content_bg": "assets/huaxin_bg_content.jpeg",
+    "use_title_bg": ["title_slide", "end_slide"],
+    "use_content_bg": ["toc_slide", "transition_slide", "content_slide", "summary_slide", "any_other"]
+  },
+  "slides": {
+    "title_slide": {
+      "bg_image": "assets/huaxin_bg_title.jpeg",
+      "title": {
+        "x": 2.62,
+        "y": 0.90,
+        "w": 4.75,
+        "h": 1.00,
+        "fontSize": 36,
+        "bold": true,
+        "color": "FFFFFF",
+        "align": "left"
+      },
+      "subtitle": {
+        "x": 2.62,
+        "y": 2.00,
+        "w": 4.75,
+        "h": 0.60,
+        "fontSize": 16,
+        "color": "CBD5E1",
+        "align": "left"
+      }
+    },
+    "toc_slide": {
+      "bg_image": "assets/huaxin_bg_content.jpeg",
+      "title": {
+        "x": 0.5,
+        "y": 0.10,
+        "w": 9.0,
+        "h": 0.45,
+        "fontSize": 20,
+        "bold": true,
+        "color": "FFFFFF",
+        "align": "left"
+      },
+      "content_area": {
+        "x": 0.5,
+        "y": 1.31,
+        "w": 9.0,
+        "h": 3.71
+      }
+    },
+    "transition_slide": {
+      "bg_image": "assets/huaxin_bg_content.jpeg",
+      "title": {
+        "x": 0.5,
+        "y": 0.10,
+        "w": 9.0,
+        "h": 0.45,
+        "fontSize": 20,
+        "bold": true,
+        "color": "FFFFFF",
+        "align": "left"
+      },
+      "content_area": {
+        "x": 0.5,
+        "y": 1.31,
+        "w": 9.0,
+        "h": 3.71
+      }
+    },
+    "content_slide": {
+      "bg_image": "assets/huaxin_bg_content.jpeg",
+      "title": {
+        "x": 0.5,
+        "y": 0.10,
+        "w": 9.0,
+        "h": 0.45,
+        "fontSize": 20,
+        "bold": true,
+        "color": "FFFFFF",
+        "align": "left"
+      },
+      "content_area": {
+        "x": 0.5,
+        "y": 1.31,
+        "w": 9.0,
+        "h": 3.71
+      }
+    },
+    "summary_slide": {
+      "bg_image": "assets/huaxin_bg_content.jpeg",
+      "title": {
+        "x": 0.5,
+        "y": 0.10,
+        "w": 9.0,
+        "h": 0.45,
+        "fontSize": 20,
+        "bold": true,
+        "color": "FFFFFF",
+        "align": "left"
+      },
+      "content_area": {
+        "x": 0.5,
+        "y": 1.31,
+        "w": 9.0,
+        "h": 3.71
+      }
+    },
+    "end_slide": {
+      "bg_image": "assets/huaxin_bg_title.jpeg",
+      "title": {
+        "x": 3.42,
+        "y": 1.47,
+        "w": 3.49,
+        "h": 1.62,
+        "fontSize": 36,
+        "bold": true,
+        "color": "FFFFFF",
+        "align": "center"
+      }
+    }
+  }
+}

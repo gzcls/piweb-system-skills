@@ -1,0 +1,2 @@
+# 注意：markitdown 按格式分可选依赖。本项目沙箱镜像预装 [all]。
+markitdown[all]

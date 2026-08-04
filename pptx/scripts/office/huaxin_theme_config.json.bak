@@ -1,0 +1,63 @@
+{
+  "theme": "Huaxin_Group_Theme",
+  "fonts": {
+    "header": "Microsoft YaHei",
+    "body": "Microsoft YaHei"
+  },
+  "slides": {
+    "title_slide": {
+      "bg_image": "assets/huaxin_bg_title.jpeg",
+      "title": {
+        "x": 2.62,
+        "y": 1.35,
+        "w": 4.75,
+        "h": 1.53,
+        "fontSize": 36,
+        "bold": true,
+        "color": "1E293B",
+        "align": "left"
+      },
+      "subtitle": {
+        "x": 2.62,
+        "y": 3.18,
+        "w": 4.75,
+        "h": 0.8,
+        "fontSize": 16,
+        "color": "64748B",
+        "align": "left"
+      }
+    },
+    "content_slide": {
+      "bg_image": "assets/huaxin_bg_content.jpeg",
+      "title": {
+        "x": 0.5,
+        "y": 0.23,
+        "w": 9.0,
+        "h": 0.94,
+        "fontSize": 26,
+        "bold": true,
+        "color": "0F172A",
+        "align": "left"
+      },
+      "content_area": {
+        "x": 0.5,
+        "y": 1.31,
+        "w": 9.0,
+        "h": 3.71
+      }
+    },
+    "end_slide": {
+      "bg_image": "assets/huaxin_bg_title.jpeg",
+      "title": {
+        "x": 3.42,
+        "y": 1.47,
+        "w": 3.49,
+        "h": 1.62,
+        "fontSize": 36,
+        "bold": true,
+        "color": "1E293B",
+        "align": "center"
+      }
+    }
+  }
+}

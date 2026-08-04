@@ -1,0 +1,20 @@
+{
+  "city": "广州",
+  "reportTitle": "广州未来一周天气报告",
+  "reporter": "华新智能小助手",
+  "retrievedAt": "2026-07-13T14:10:00+08:00",
+  "source": {
+    "name": "示例天气数据源",
+    "url": "https://example.com/weather/guangzhou"
+  },
+  "days": [
+    { "date": "2026-07-14", "condition": "雷阵雨", "lowC": 26, "highC": 33, "wind": "东南风 2-3级", "precipProbability": 70, "humidity": 82, "uv": "弱" },
+    { "date": "2026-07-15", "condition": "阵雨", "lowC": 26, "highC": 32, "wind": "东南风 2-3级", "precipProbability": 65, "humidity": 84, "uv": "弱" },
+    { "date": "2026-07-16", "condition": "多云", "lowC": 27, "highC": 34, "wind": "南风 2级", "precipProbability": 30, "humidity": 75, "uv": "中等" },
+    { "date": "2026-07-17", "condition": "晴间多云", "lowC": 27, "highC": 35, "wind": "南风 2级", "precipProbability": 20, "humidity": 70, "uv": "强" },
+    { "date": "2026-07-18", "condition": "多云", "lowC": 28, "highC": 35, "wind": "西南风 2级", "precipProbability": 25, "humidity": 72, "uv": "强" },
+    { "date": "2026-07-19", "condition": "阵雨", "lowC": 27, "highC": 33, "wind": "南风 2-3级", "precipProbability": 60, "humidity": 80, "uv": "弱" },
+    { "date": "2026-07-20", "condition": "中雨", "lowC": 26, "highC": 31, "wind": "东南风 3级", "precipProbability": 80, "humidity": 88, "uv": "最弱" }
+  ],
+  "alerts": []
+}
