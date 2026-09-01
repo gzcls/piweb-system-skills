@@ -1,0 +1,4 @@
+interface:
+  display_name: "合同对比分析"
+  short_description: "混合式 OCR、人工门禁与可追溯合同对比 HTML 报告"
+  default_prompt: "Use $compare-contracts to extract contracts with hybrid OCR, resolve required original-page checks, and create a source-cited HTML/CSS comparison report."
