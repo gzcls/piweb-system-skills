@@ -19,6 +19,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+from pathlib import Path
 
 _CANDIDATES = [
     "/usr/bin/soffice", "/usr/bin/libreoffice", "/opt/libreoffice/program/soffice",
@@ -57,12 +58,20 @@ def convert(src: str, to: str, out_dir: str | None = None, soffice: str | None =
     # 独立用户配置目录，避免并发/只读 HOME 问题
     profile = tempfile.mkdtemp(prefix="lo_profile_")
     try:
+        # LibreOffice expects a URI here.  ``file://C:\\...`` is malformed on
+        # Windows; Path.as_uri() emits ``file:///C:/...`` on all platforms.
+        profile_uri = Path(profile).resolve().as_uri()
         args = [
             exe, "--headless", "--norestore", "--nolockcheck", "--nodefault",
-            f"-env:UserInstallation=file://{profile}",
+            f"-env:UserInstallation={profile_uri}",
             "--convert-to", to, "--outdir", out_dir, src,
         ]
-        proc = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+        # LibreOffice emits UTF-8 on Windows; use an explicit codec so a
+        # non-UTF-8 system locale cannot break subprocess output collection.
+        proc = subprocess.run(
+            args, capture_output=True, text=True, encoding="utf-8",
+            errors="replace", timeout=timeout,
+        )
         base = os.path.splitext(os.path.basename(src))[0]
         ext = to.split(":")[0]  # 形如 "pdf" 或 "xlsx:Calc MS Excel 2007 XML"
         out = os.path.join(out_dir, f"{base}.{ext}")
