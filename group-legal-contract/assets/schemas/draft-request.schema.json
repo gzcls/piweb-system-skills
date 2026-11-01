@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://group-legal.internal/schemas/draft-request.schema.json",
+  "title": "ContractDraftRequest",
+  "description": "合同起草与模板生成要素采集结构",
+  "type": "object",
+  "required": ["contract_type", "our_position"],
+  "properties": {
+    "contract_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "合同类型（如 sale, tech, nda, lease, construction 等）"
+    },
+    "template_id": {
+      "type": "string",
+      "pattern": "^T\\d{4}$",
+      "description": "可选模板目录 ID；缺省按 contract_type 路由选择首个模板"
+    },
+    "sector": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "所属集团业务板块代码（01–08）"
+    },
+    "our_position": {
+      "type": "string",
+      "minLength": 1,
+      "description": "我方合同地位（如：甲方/买方、甲方/委托方、甲方/出租方、乙方/受托方）"
+    },
+    "party_a": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "credit_code": { "type": "string", "minLength": 1 },
+        "legal_representative": { "type": "string", "minLength": 1 },
+        "address": { "type": "string", "minLength": 1 },
+        "contact": { "type": "string", "minLength": 1 }
+      }
+    },
+    "party_b": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "credit_code": { "type": "string", "minLength": 1 },
+        "legal_representative": { "type": "string", "minLength": 1 },
+        "address": { "type": "string", "minLength": 1 },
+        "contact": { "type": "string", "minLength": 1 }
+      }
+    },
+    "commercial_terms": {
+      "type": "object",
+      "properties": {
+        "subject_matter": { "type": "string", "minLength": 1, "description": "交易标的物或服务内容" },
+        "total_amount": { "type": "string", "minLength": 1, "description": "合同总价款与币种" },
+        "tax_rate": { "type": "string", "minLength": 1, "description": "增值税税率与发票类型" },
+        "payment_schedule": { "type": "string", "minLength": 1, "description": "付款节点与比例" },
+        "term": { "type": "string", "minLength": 1, "description": "合同履行期限或租赁期限" },
+        "delivery_and_acceptance": { "type": "string", "minLength": 1, "description": "交付地点、方式与验收标准" },
+        "warranty_period": { "type": "string", "minLength": 1, "description": "质保期与质保金比例" },
+        "ip_ownership": { "type": "string", "minLength": 1, "description": "知识产权归属约定" },
+        "dispute_resolution": { "type": "string", "minLength": 1, "description": "争议解决方式与管辖机构" }
+      }
+    },
+    "special_requirements": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "用户特别指定的保护性要求或商业背景"
+    }
+  }
+}

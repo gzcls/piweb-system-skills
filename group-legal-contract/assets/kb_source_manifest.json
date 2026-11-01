@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "kb_snapshot": "2026-10-31",
+  "source_commit": "bf2a030",
+  "files": [
+    {
+      "source_rel_path": "02_律所级审查清单/通用商事合同审查总清单（主审与复核双视角）.md",
+      "kind": "checklist",
+      "entry_id": "C0101",
+      "normalized_sha256": "8659d3c2f994b38205549454ae59903cd907490364b83a45a35d4d9ffb7482a8"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/集团法务合同审核要点.md",
+      "kind": "checklist",
+      "entry_id": "C0102",
+      "normalized_sha256": "e30e72e6d33f0f9af288ae420cbf0eb6c13cc381176c39d7aa7712a048d5614a"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/常见专类合同审查清单/01_买卖与采购合同审查清单.md",
+      "kind": "checklist",
+      "entry_id": "C0201",
+      "normalized_sha256": "15836a517768834790ebb045b64bcc70ac9b79f05a8e25a793bc4d91077ca87a"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/常见专类合同审查清单/02_技术开发与技术服务（含软件外包_SaaS）审查清单.md",
+      "kind": "checklist",
+      "entry_id": "C0202",
+      "normalized_sha256": "3855584d197c1e619fc570806133cf0955c551c2abbc5e484022aaf417c5740b"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/常见专类合同审查清单/03_保密协议（NDA）与竞业限制审查清单.md",
+      "kind": "checklist",
+      "entry_id": "C0203",
+      "normalized_sha256": "1e97d02f86db815eb22d5fbf08d7c82dfc266f3a5520674ae296f0be8f717484"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/常见专类合同审查清单/04_房屋与商业地产租赁合同审查清单.md",
+      "kind": "checklist",
+      "entry_id": "C0204",
+      "normalized_sha256": "6528c6d2689ccd1fb2d4de99e97a4f396daad36e64f9435323b0ab74d7d9a2cf"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/专项合规自查清单/01_新《公司法》公司章程及治理结构合规自查清单.md",
+      "kind": "checklist",
+      "entry_id": "C0301",
+      "normalized_sha256": "1ebea4762fc5c69e3777d9f375035b78dbbfbfeb4f7e915db0c81addd49b753b"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/专项合规自查清单/02_企业个人信息保护与数据合规自查清单.md",
+      "kind": "checklist",
+      "entry_id": "C0302",
+      "normalized_sha256": "8c3f4c44649588331c4a456bcb574e2e9871ee84f7534ba85c9c3d6156681341"
+    },
+    {
+      "source_rel_path": "02_律所级审查清单/专项合规自查清单/03_企业劳动用工全流程合规审查清单.md",
+      "kind": "checklist",
+      "entry_id": "C0303",
+      "normalized_sha256": "03ed34d7ea745b6ffd2da89bf33847a4c985f9a17b58424c6c6f55fd24119695"
+    },
+    {
+      "source_rel_path": "01_法律法规库/01_民商事基础/中华人民共和国公司法（2023修订）.md",
+      "kind": "law",
+      "entry_id": "L0101",
+      "normalized_sha256": "254bc51129b0cb8e8966fd4adf15e62b24061bead62d83da7c2e059b68b68170"
+    },
+    {
+      "source_rel_path": "01_法律法规库/01_民商事基础/中华人民共和国民法典_合同编及总则编核心条文.md",
+      "kind": "law",
+      "entry_id": "L0102",
+      "normalized_sha256": "f7ee29290f603078122fe719994875cd73baf8cc715c8c447541a27655c51419"
+    },
+    {
+      "source_rel_path": "01_法律法规库/01_民商事基础/最高人民法院关于适用《中华人民共和国公司法》时间效力的若干规定.md",
+      "kind": "law",
+      "entry_id": "L0103",
+      "normalized_sha256": "6be341d4ca2a11e2b73b17ed760041e64feb9030d0bbd0070c1cff882aa38a74"
+    },
+    {
+      "source_rel_path": "01_法律法规库/01_民商事基础/最高人民法院关于适用《中华人民共和国民法典》侵权责任编的解释（一）.md",
+      "kind": "law",
+      "entry_id": "L0104",
+      "normalized_sha256": "90cae86f70b0665c568d107a7310aceea0bebc972aea8079bd88d5ce1722a4ea"
+    },
+    {
+      "source_rel_path": "01_法律法规库/01_民商事基础/最高人民法院关于适用《民法典》合同编通则若干问题的解释.md",
+      "kind": "law",
+      "entry_id": "L0105",
+      "normalized_sha256": "04beb3c7117f194e650f9741afb32a6ec405c7cc9dc3c9d0905bacba37eadbba"
+    },
+    {
+      "source_rel_path": "01_法律法规库/02_劳动与人事/中华人民共和国劳动合同法.md",
+      "kind": "law",
+      "entry_id": "L0201",
+      "normalized_sha256": "d10ffec6093211f7004f6109edca9d622f658f8f8ecb21dac518e0e8afdcf550"
+    },
+    {
+      "source_rel_path": "01_法律法规库/02_劳动与人事/劳动争议司法解释核心汇编.md",
+      "kind": "law",
+      "entry_id": "L0202",
+      "normalized_sha256": "9144621116269edfb20255b6edff4c0ea669174b3e6f236b75d65b438f6c1e51"
+    },
+    {
+      "source_rel_path": "01_法律法规库/02_劳动与人事/最高人民法院关于审理劳动争议案件适用法律问题的解释（一）.md",
+      "kind": "law",
+      "entry_id": "L0203",
+      "normalized_sha256": "5377804ee8d605942251799451fa5c1feab36efbe21cccd9666c91be1d52b48b"
+    },
+    {
+      "source_rel_path": "01_法律法规库/02_劳动与人事/最高人民法院关于审理劳动争议案件适用法律问题的解释（二）.md",
+      "kind": "law",
+      "entry_id": "L0204",
+      "normalized_sha256": "0e1799a1d9e3a6e304fc7228dc69ee46b6b8cdeb4e0bbdc5da89a3771b1ecc8a"
+    },
+    {
+      "source_rel_path": "01_法律法规库/03_数据合规与网络安全/中华人民共和国个人信息保护法.md",
+      "kind": "law",
+      "entry_id": "L0301",
+      "normalized_sha256": "833e304d1a0a757de0adfcb711c17041afd40fb1fc5ee2d750350e0717970dae"
+    },
+    {
+      "source_rel_path": "01_法律法规库/03_数据合规与网络安全/中华人民共和国数据安全法.md",
+      "kind": "law",
+      "entry_id": "L0302",
+      "normalized_sha256": "0cfe5fe46e617050cf34fc489f79e7b1f0a48874ae436403f5b8fabb7145d9d5"
+    },
+    {
+      "source_rel_path": "01_法律法规库/03_数据合规与网络安全/中华人民共和国网络安全法.md",
+      "kind": "law",
+      "entry_id": "L0303",
+      "normalized_sha256": "9ef1308ff350e83a3e4ccc5ba2e3cd78f0203c331d20d0ee5201748ae798eaa0"
+    },
+    {
+      "source_rel_path": "01_法律法规库/03_数据合规与网络安全/促进和规范数据跨境流动规定（网信办）.md",
+      "kind": "law",
+      "entry_id": "L0304",
+      "normalized_sha256": "124197367fb4801583d31791a021aa9d192ed1aba11bd0e2c93e376f2cd17b74"
+    },
+    {
+      "source_rel_path": "01_法律法规库/03_数据合规与网络安全/网络数据安全管理条例（国务院令第790号）.md",
+      "kind": "law",
+      "entry_id": "L0305",
+      "normalized_sha256": "32acb5078e792be5f121023e0307a281efb0c67bedb488b22b9c9d43661c360e"
+    },
+    {
+      "source_rel_path": "01_法律法规库/04_知识产权与反不正当竞争/中华人民共和国反不正当竞争法.md",
+      "kind": "law",
+      "entry_id": "L0401",
+      "normalized_sha256": "3883fe010628ea83af1eb385348da896898ce29c966348c0bd8bc158cb05efe8"
+    },
+    {
+      "source_rel_path": "01_法律法规库/04_知识产权与反不正当竞争/商业秘密与知识产权保护核心条文.md",
+      "kind": "law",
+      "entry_id": "L0402",
+      "normalized_sha256": "0e9b61e38050a41790b63c813ab6174c47eb96af72b4e3b51939ca7c0c75bb16"
+    },
+    {
+      "source_rel_path": "01_法律法规库/05_地产与建设工程/住房租赁条例（国务院令第812号）.md",
+      "kind": "law",
+      "entry_id": "L0501",
+      "normalized_sha256": "ee9c8a79dd8bf11ccc25d2aec6d3fe22e86336756d45b028b5726e2de557abfb"
+    },
+    {
+      "source_rel_path": "01_法律法规库/05_地产与建设工程/商品房屋租赁管理办法（住建部令第6号）.md",
+      "kind": "law",
+      "entry_id": "L0502",
+      "normalized_sha256": "4eabb933e4872a36d9affe4f827694b8959be41a162697f904e5cf4f91544d27"
+    },
+    {
+      "source_rel_path": "01_法律法规库/05_地产与建设工程/最高人民法院关于审理城镇房屋租赁合同纠纷案件具体应用法律若干问题的解释（2020修正）.md",
+      "kind": "law",
+      "entry_id": "L0503",
+      "normalized_sha256": "7ecf0f0c8094b34759710df25ba618daf3773e475d52b8828926cd848d070281"
+    },
+    {
+      "source_rel_path": "01_法律法规库/05_地产与建设工程/最高人民法院关于审理建设工程施工合同纠纷案件适用法律问题的解释（一）.md",
+      "kind": "law",
+      "entry_id": "L0504",
+      "normalized_sha256": "a36e1383e7dec501dd7e904cd0dca33b4bd36458c29ec36962290c6a12c28c10"
+    },
+    {
+      "source_rel_path": "01_法律法规库/05_地产与建设工程/最高人民法院关于审理建设工程施工合同纠纷案件适用法律问题的解释（二）.md",
+      "kind": "law",
+      "entry_id": "L0505",
+      "normalized_sha256": "fb8da209571010230ade751060952b476a4df5f52e3ae99cf77910b7e85d3480"
+    },
+    {
+      "source_rel_path": "01_法律法规库/05_地产与建设工程/最高人民法院关于审理物业服务及建筑物区分所有权纠纷案件适用法律若干问题的解释（2020修正）.md",
+      "kind": "law",
+      "entry_id": "L0506",
+      "normalized_sha256": "4f3828d152fc2abdd7493268812a919a74ad65ff9cdfaeacfe1fe5a8e3b868b0"
+    },
+    {
+      "source_rel_path": "01_法律法规库/05_地产与建设工程/物业管理条例（2018修正）.md",
+      "kind": "law",
+      "entry_id": "L0507",
+      "normalized_sha256": "1482ce73f411cd9673464164f5ff5bb907e697a41812bf5e7882b25928b50bf6"
+    },
+    {
+      "source_rel_path": "01_法律法规库/06_医院与医疗卫生/医疗卫生机构医药采购与医疗损害责任核心法条汇编.md",
+      "kind": "law",
+      "entry_id": "L0601",
+      "normalized_sha256": "5ce95e3285d9b72dcf2278dc6b141eb5dac6427eea0128da3496d547b13f5215"
+    },
+    {
+      "source_rel_path": "01_法律法规库/06_医院与医疗卫生/医疗纠纷预防和处理条例（国务院令第701号）.md",
+      "kind": "law",
+      "entry_id": "L0602",
+      "normalized_sha256": "300d72c8a8c742b4f7bfca55e136f2a7d666c4052b4a46852530c2407364ca44"
+    },
+    {
+      "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/中华人民共和国食品安全法（2025修正）.md",
+      "kind": "law",
+      "entry_id": "L0701",
+      "normalized_sha256": "f8c03ddf598d6a326f6b70ee96ac856720b1d5441dd6aaca2f906920ce800fec"
+    },
+    {
+      "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/商业特许经营管理条例（国务院令第485号）.md",
+      "kind": "law",
+      "entry_id": "L0702",
+      "normalized_sha256": "e9d1fa59af33d6e7f4e920e9144fbe375a2c16695dd227a3e266a0983740b08a"
+    },
+    {
+      "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/最高人民法院关于审理预付式消费民事纠纷案件适用法律若干问题的解释.md",
+      "kind": "law",
+      "entry_id": "L0703",
+      "normalized_sha256": "e6d311c9e0f6013018edadee42c48c8ae54b9a3b3bc1febab5996fe3e78ed315"
+    },
+    {
+      "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/最高人民法院关于审理食品药品惩罚性赔偿纠纷案件适用法律若干问题的解释（2024）.md",
+      "kind": "law",
+      "entry_id": "L0704",
+      "normalized_sha256": "ea5d7b58d976153dc927bea5546665274750e4f2ce6496fcbd2dbd730515e507"
+    },
+    {
+      "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/最高人民法院关于审理食品药品纠纷案件适用法律若干问题的规定.md",
+      "kind": "law",
+      "entry_id": "L0705",
+      "normalized_sha256": "ee613ac9c00c7523021fc641102630f7d21d4ac4e1220b5b6cdb01be3535d52a"
+    },
+    {
+      "source_rel_path": "01_法律法规库/08_制造安全与投融资/中华人民共和国产品质量法（2018修正）.md",
+      "kind": "law",
+      "entry_id": "L0801",
+      "normalized_sha256": "e8cfd68c5ae68fd8a9de2d05fe96465afccb2abc22cc36dc51c4afc219f59916"
+    },
+    {
+      "source_rel_path": "01_法律法规库/08_制造安全与投融资/中华人民共和国安全生产法（2021修正）.md",
+      "kind": "law",
+      "entry_id": "L0802",
+      "normalized_sha256": "313abb40a23900e339e9f53e721b21ba5d6dcdac83fc20c2810417f7b6ee8118"
+    },
+    {
+      "source_rel_path": "01_法律法规库/08_制造安全与投融资/全国法院民商事审判工作会议纪要（九民纪要_对赌与公司担保核心条文）.md",
+      "kind": "law",
+      "entry_id": "L0803",
+      "normalized_sha256": "bc998ec0ab4c2b3b40d490f1e0a208addeb472b1a14be1d7ded978b67dc4f8f1"
+    },
+    {
+      "source_rel_path": "01_法律法规库/09_农业与储备粮/中华人民共和国农产品质量安全法（2022修订）.md",
+      "kind": "law",
+      "entry_id": "L0901",
+      "normalized_sha256": "42f91307d73641096694c0ec2c21725bc0949fde3d0173a174e6b40e80367e7d"
+    },
+    {
+      "source_rel_path": "01_法律法规库/09_农业与储备粮/中华人民共和国粮食安全保障法（2024施行）.md",
+      "kind": "law",
+      "entry_id": "L0902",
+      "normalized_sha256": "fea2ed6f8d5aca96d49dd10d8e68df5412ca89773cbc0bf045fd87381bbac74b"
+    },
+    {
+      "source_rel_path": "01_法律法规库/09_农业与储备粮/政府储备粮食仓储管理办法（国家粮储局）.md",
+      "kind": "law",
+      "entry_id": "L0903",
+      "normalized_sha256": "e9c2dc594d86bc7e742dacba13600c359ffd60ad43e3359402f8019f313012e7"
+    },
+    {
+      "source_rel_path": "01_法律法规库/09_农业与储备粮/粮食流通管理条例（国务院令第740号）.md",
+      "kind": "law",
+      "entry_id": "L0904",
+      "normalized_sha256": "348a90ccbf41251b4709cd83ea3bc7aaddc96394cefcc56982a3f77fd21d4ad1"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/01_地产建筑板块/EPC工程总承包与设计勘察及大宗物业收购合规审查清单.md",
+      "kind": "sector",
+      "entry_id": "S0101",
+      "normalized_sha256": "ef55d1e6e82a5c116fa0154bbb82d93d861366137ab91f17b750576f324b4f45"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/01_地产建筑板块/建设工程施工合同（总包_专业分包_劳务分包）审查清单与核心条款范本.md",
+      "kind": "sector",
+      "entry_id": "S0102",
+      "normalized_sha256": "2df9aa249626d28425d074dd762ac5946dec47f60b077169fa41f9f1e6e275ba"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/02_医院医疗板块/医院临床科研合作（GCP_CRO）、九项准则反腐及医疗纠纷和解协议模板.md",
+      "kind": "sector",
+      "entry_id": "S0201",
+      "normalized_sha256": "b6bf1e44858a706bd3e7d8bc5e6d66340a15777224af27518b5ce51c05b3533a"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/02_医院医疗板块/大型医疗设备采购维保与药品耗材SPD供应链合规审查清单.md",
+      "kind": "sector",
+      "entry_id": "S0202",
+      "normalized_sha256": "e2c6922cacbb7ad88cc5c3a27148f956ef86f77684243b4cf14d7fc214244287"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/03_餐饮食品板块/中央厨房生鲜冷链采购、食品安全“退一赔十”防控与灵活用工合规清单.md",
+      "kind": "sector",
+      "entry_id": "S0301",
+      "normalized_sha256": "d94ce9b14f33a798594e3560e465f9aa01529eaeb9251dfb0557907cd6b3edfd"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/03_餐饮食品板块/餐饮品牌特许经营（连锁加盟）合同审查清单与标准范本.md",
+      "kind": "sector",
+      "entry_id": "S0302",
+      "normalized_sha256": "b009c9a1d1bfaa677f47e12ae467cca958fc5ae3fec33400a263718be8e769af"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/04_商贸与进出口板块/国际货物买卖（进出口外贸 FOB_CIF_信用证）审查清单与中英双语核心条款.md",
+      "kind": "sector",
+      "entry_id": "S0401",
+      "normalized_sha256": "0e7c9e2b4947c991a4c33aae5e81837d516c78ab1dd8c19a46ab1e75c14bfdcb"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/04_商贸与进出口板块/大宗商品贸易合规审查清单（严防融资性贸易、循环走单与虚开风险）.md",
+      "kind": "sector",
+      "entry_id": "S0402",
+      "normalized_sha256": "a362ad3207a8b3a732630370fea01786b5ba64c6ab7b613021472545a555b7be"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/05_投资与并购板块/增资扩股与股东协议（含对赌回购、一票否决、反稀释、领售随售）审查清单与范本.md",
+      "kind": "sector",
+      "entry_id": "S0501",
+      "normalized_sha256": "b93152c85d8b6b7835d96ac11189d5a44317038d4b55107bab1aa36a6c796686"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/05_投资与并购板块/集团投资并购法律尽职调查（LDD）标准核查清单.md",
+      "kind": "sector",
+      "entry_id": "S0502",
+      "normalized_sha256": "3ee8c2641dff67d7fa3ce4ec9a6f1b6b0fb39aabe262f36ad82c0162059b7d42"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/06_工业制造板块/OEM_ODM委托加工与代工生产合同审查清单及模具归属_质量召回核心范本.md",
+      "kind": "sector",
+      "entry_id": "S0601",
+      "normalized_sha256": "f8ad4e8ea7a36b9bc555922baeb3f9e5757cb2541e8e031e702b2fbe7a38064c"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/06_工业制造板块/工厂EHS安全生产管理及外包施工入厂安全管理协议标准范本.md",
+      "kind": "sector",
+      "entry_id": "S0602",
+      "normalized_sha256": "62be980a48ec96355561b1b715fe44e864f88321c5651e90b1684a3dbb10656e"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/07_现代服务板块/业务外包（BPO）_劳务外包与劳务派遣合规边界审查清单（防假外包真派遣）.md",
+      "kind": "sector",
+      "entry_id": "S0701",
+      "normalized_sha256": "0cd57f6ecacf0e21993055856de38d806721d6f2582bcfbfa613a525ba9b73e4"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/07_现代服务板块/商业物业管理服务合同与MCN直播带货_品牌营销代运营合同审查清单.md",
+      "kind": "sector",
+      "entry_id": "S0702",
+      "normalized_sha256": "f42cd4712e42dca99429e110320df02090dfe407dacdc71d4b5a87f9230c85df"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/08_农业与储备粮板块/农村土地经营权流转（规模化种植）_订单农业与农资种业采购合规审查清单.md",
+      "kind": "sector",
+      "entry_id": "S0801",
+      "normalized_sha256": "10adf31f43ada1668c49af6e1af7a09c49ab2d2134648f2950b01316a9a4e6a6"
+    },
+    {
+      "source_rel_path": "04_集团板块专属库/08_农业与储备粮板块/政策性储备粮承储_委托代储与轮换购销合同审查清单及标准范本.md",
+      "kind": "sector",
+      "entry_id": "S0802",
+      "normalized_sha256": "d003d9187fb9a962de277a7afb966c91a3e44b592c6202476dd8d9350a7c112e"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/个人信息与重要数据委托处理协议（DPA）标准范本（适配国务院令第790号）.md",
+      "kind": "template",
+      "entry_id": "T0101",
+      "normalized_sha256": "5bc8bef39d18498b47599b457a8f3df53dd5514e932a99dd18f02303ec7c4961"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/企业劳动用工与保密竞业限制全套标准文书范本（适配2025劳动争议解释二）.md",
+      "kind": "template",
+      "entry_id": "T0102",
+      "normalized_sha256": "fc7b475886a02816391bfcf9b6ec9eb4a572306d29fc1292171c9fb8cc4f0aae"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/写字楼与产业园区房屋租赁及物业管理服务全套标准文书范本（附风险批注）.md",
+      "kind": "template",
+      "entry_id": "T0103",
+      "normalized_sha256": "aee6972adbf8469c7281868ab5bad45990c1abee9e9859f311fffdba6c66ffc6"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/双向保密协议（NDA）标准范本（附起草批注）.md",
+      "kind": "template",
+      "entry_id": "T0104",
+      "normalized_sha256": "75f66c100a43bcb725fd10370ae269ce332b646c3124f1109913007292482a6f"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/技术开发（委托）合同标准范本（附风险批注）.md",
+      "kind": "template",
+      "entry_id": "T0105",
+      "normalized_sha256": "b255497ff9798e3478e6b9e9837de0ec0e07abd11997054d669d25b2167571a9"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/有限责任公司章程及股东会_董事会决议标准范本（适配新公司法）.md",
+      "kind": "template",
+      "entry_id": "T0106",
+      "normalized_sha256": "ce16c39a6a076f29d3e75c124a3242f850cdc81eab575e1812b9faa1d8169705"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/股权转让协议核心条款范本（适配新公司法）.md",
+      "kind": "template",
+      "entry_id": "T0107",
+      "normalized_sha256": "ba568399acf56f99ca37c04d9352bda6ce1659ae64fbb1c4217d26c37255d04c"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/货物买卖与设备采购安装合同标准范本（含阳光采购廉洁协议）.md",
+      "kind": "template",
+      "entry_id": "T0108",
+      "normalized_sha256": "dbaf471700c8eef1c7d5749397b1e9787cf28ad502830a2fd42374b757794770"
+    },
+    {
+      "source_rel_path": "03_标准文书与合同范本/02_诉讼与非诉法律文书模板/合同法律审查意见书（Redline 报告）输出模板.md",
+      "kind": "template",
+      "entry_id": "T0202",
+      "normalized_sha256": "e656016a689f4d457767837b2662090547fedc23bd47080280da8c0f1532f3d7"
+    }
+  ]
+}

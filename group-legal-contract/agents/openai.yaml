@@ -1,0 +1,6 @@
+interface:
+  display_name: "合同审核与模板生成"
+  short_description: "中国大陆法合同审核、Word 修订与标准合同模板生成"
+  default_prompt: "使用 $group-legal-contract 审核合同或按我方立场生成合同模板/草稿，并完成必要的 Word 与法条核验。"
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "skill_name": "group-legal-contract",
+  "skill_version": "1.0.0",
+  "kb_snapshot": "2026-10-31",
+  "source_commit": "bf2a030",
+  "templates": [
+    {
+      "id": "T0101",
+      "title": "个人信息与重要数据委托处理协议（DPA）标准范本（适配国务院令第790号）",
+      "path": "assets/templates/T0101.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/个人信息与重要数据委托处理协议（DPA）标准范本（适配国务院令第790号）.md",
+      "sha256": "5bc8bef39d18498b47599b457a8f3df53dd5514e932a99dd18f02303ec7c4961",
+      "contract_types": [
+        "data"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 11,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0102",
+      "title": "企业劳动用工与保密竞业限制全套标准文书范本（适配2025劳动争议解释二）",
+      "path": "assets/templates/T0102.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/企业劳动用工与保密竞业限制全套标准文书范本（适配2025劳动争议解释二）.md",
+      "sha256": "fc7b475886a02816391bfcf9b6ec9eb4a572306d29fc1292171c9fb8cc4f0aae",
+      "contract_types": [
+        "labor"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 109,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0103",
+      "title": "写字楼与产业园区房屋租赁及物业管理服务全套标准文书范本（附风险批注）",
+      "path": "assets/templates/T0103.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/写字楼与产业园区房屋租赁及物业管理服务全套标准文书范本（附风险批注）.md",
+      "sha256": "aee6972adbf8469c7281868ab5bad45990c1abee9e9859f311fffdba6c66ffc6",
+      "contract_types": [
+        "lease",
+        "property-mgmt"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 130,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0104",
+      "title": "双向保密协议（NDA）标准范本（附起草批注）",
+      "path": "assets/templates/T0104.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/双向保密协议（NDA）标准范本（附起草批注）.md",
+      "sha256": "75f66c100a43bcb725fd10370ae269ce332b646c3124f1109913007292482a6f",
+      "contract_types": [
+        "nda"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 14,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0105",
+      "title": "技术开发（委托）合同标准范本（附风险批注）",
+      "path": "assets/templates/T0105.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/技术开发（委托）合同标准范本（附风险批注）.md",
+      "sha256": "b255497ff9798e3478e6b9e9837de0ec0e07abd11997054d669d25b2167571a9",
+      "contract_types": [
+        "tech"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 20,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0106",
+      "title": "有限责任公司章程及股东会_董事会决议标准范本（适配新公司法）",
+      "path": "assets/templates/T0106.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/有限责任公司章程及股东会_董事会决议标准范本（适配新公司法）.md",
+      "sha256": "ce16c39a6a076f29d3e75c124a3242f850cdc81eab575e1812b9faa1d8169705",
+      "contract_types": [
+        "articles",
+        "capital-increase"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 82,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0107",
+      "title": "股权转让协议核心条款范本（适配新公司法）",
+      "path": "assets/templates/T0107.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/股权转让协议核心条款范本（适配新公司法）.md",
+      "sha256": "ba568399acf56f99ca37c04d9352bda6ce1659ae64fbb1c4217d26c37255d04c",
+      "contract_types": [
+        "equity-transfer"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 28,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0108",
+      "title": "货物买卖与设备采购安装合同标准范本（含阳光采购廉洁协议）",
+      "path": "assets/templates/T0108.md",
+      "source_rel_path": "03_标准文书与合同范本/01_商事合同标准范本/货物买卖与设备采购安装合同标准范本（含阳光采购廉洁协议）.md",
+      "sha256": "dbaf471700c8eef1c7d5749397b1e9787cf28ad502830a2fd42374b757794770",
+      "contract_types": [
+        "food-procurement",
+        "medical-procurement",
+        "sale"
+      ],
+      "category": "01_商事合同标准范本",
+      "placeholder_count": 70,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    },
+    {
+      "id": "T0202",
+      "title": "合同法律审查意见书（Redline 报告）输出模板",
+      "path": "assets/templates/T0202.md",
+      "source_rel_path": "03_标准文书与合同范本/02_诉讼与非诉法律文书模板/合同法律审查意见书（Redline 报告）输出模板.md",
+      "sha256": "e656016a689f4d457767837b2662090547fedc23bd47080280da8c0f1532f3d7",
+      "contract_types": [],
+      "category": "合同审核输出模板",
+      "placeholder_count": 14,
+      "placeholder_tokens": [
+        "[●]"
+      ]
+    }
+  ]
+}

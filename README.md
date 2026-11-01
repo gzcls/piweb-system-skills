@@ -1,6 +1,6 @@
 # PIWeb System Skills
 
-This repository contains 22 deployable system-level File Skill packages. It includes the original 21-package snapshot exported from the local PIWeb runtime on 2026-08-04 plus independently maintained additions.
+This repository contains 23 deployable system-level File Skill packages. It includes the original 21-package snapshot exported from the local PIWeb runtime on 2026-08-04 plus independently maintained additions.
 
 ## Skills
 
@@ -8,6 +8,7 @@ This repository contains 22 deployable system-level File Skill packages. It incl
 - `contract-auditor`
 - `compare-contracts`
 - `data-analysis`
+- `group-legal-contract`
 - `data-to-docx`
 - `data-to-pdf`
 - `data-to-xlsx`

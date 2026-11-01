@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ContractRevisions",
+  "description": "集团法务合同审查修订指令结构（模型输出 -> docx_redline.py 执行）",
+  "type": "object",
+  "required": ["revisions"],
+  "additionalProperties": false,
+  "properties": {
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "default": "集团法务AI审查",
+      "description": "Word 修订与批注的作者署名"
+    },
+    "revisions": {
+      "type": "array",
+      "description": "按顺序或锚点执行的修订与批注指令列表",
+      "items": {
+        "type": "object",
+        "required": ["id", "op", "anchor"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "修订项唯一编号（如 R-01），与审查意见书对应"
+          },
+          "op": {
+            "type": "string",
+            "enum": [
+              "replace",
+              "delete",
+              "insert_text",
+              "insert_paragraph_after",
+              "insert_paragraph_before",
+              "delete_paragraph",
+              "comment_only"
+            ],
+            "description": "修订操作类型"
+          },
+          "anchor": {
+            "type": "object",
+            "required": ["block_id"],
+            "additionalProperties": false,
+            "description": "定位锚点信息",
+            "properties": {
+              "block_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "目标段落块 ID（来自 blocks.json）"
+              },
+              "match": {
+                "type": "string",
+                "description": "在目标段落内待匹配的原文片段（用于 replace/delete/insert_text 及可选的 comment_only）"
+              },
+              "occurrence": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "当 match 在同一段落出现多次时，指定第几次出现（从 1 开始）"
+              },
+              "position": {
+                "type": "string",
+                "enum": ["before", "after"],
+                "default": "after",
+                "description": "用于 insert_text，指定在 match 之前或之后插入"
+              }
+            }
+          },
+          "new_text": {
+            "type": "string",
+            "description": "replace 或 insert_text 操作的新增/替换文本"
+          },
+          "new_paragraphs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "insert_paragraph_after / insert_paragraph_before 操作新增的段落文本列表"
+          },
+          "style_from": {
+            "type": "string",
+            "description": "新增段落时复制样式与段落属性（w:pPr）的来源段落 block_id，缺省为 anchor.block_id"
+          },
+          "comment": {
+            "type": "object",
+            "required": ["risk", "issue"],
+            "additionalProperties": false,
+            "description": "附加在修订处或段落上的法务审查批注",
+            "properties": {
+              "risk": {
+                "type": "string",
+                "enum": ["高", "中", "低"],
+                "description": "风险等级（高/中/低）"
+              },
+              "issue": {
+                "type": "string",
+                "minLength": 1,
+                "description": "法律或商业风险问题说明"
+              },
+              "basis": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "法规、司法解释或集团清单依据列表"
+              },
+              "fallback": {
+                "type": "string",
+                "description": "谈判退让底线（Fallback Position）"
+              },
+              "suggestion": {
+                "type": "string",
+                "description": "修改或处理建议（可选，尤其适用于 comment_only 或降级批注）"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

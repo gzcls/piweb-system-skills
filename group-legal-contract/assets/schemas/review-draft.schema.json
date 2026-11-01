@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://group-legal.internal/schemas/review-draft.schema.json",
+  "title": "ContractReviewDraft",
+  "description": "合同审查单一来源台账（Single Source of Truth）。由模型一次性编写，通过 build_review_outputs.py 确定性派生 revisions.json、review-result.json 与 review_report.md。",
+  "type": "object",
+  "required": [
+    "our_position",
+    "contract_type",
+    "revisions"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "description": "待审合同名称（缺省时取输入文件名）"
+    },
+    "department_or_sector": {
+      "type": "string",
+      "description": "意见书首部展示的委托部门或所属板块说明"
+    },
+    "our_position": {
+      "type": "string",
+      "minLength": 1,
+      "description": "我方合同地位与交易角色（如：甲方/买方）"
+    },
+    "contract_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "合同类型代码或名称（如：tech（软件购买及实施服务））"
+    },
+    "sector": {
+      "type": ["string", "null"],
+      "description": "所属集团业务板块"
+    },
+    "subject_and_amount": {
+      "type": "string",
+      "description": "意见书首部展示的合同交易标的与金额摘要"
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "审查采用的默认假设列表"
+    },
+    "kb_snapshot": {
+      "type": "string",
+      "description": "知识库快照日期与提交号（缺省时自动从 kb_index.json 读取）"
+    },
+    "review_date": {
+      "type": "string",
+      "description": "审查日期（缺省为当日 YYYY年MM月DD日）"
+    },
+    "routing_confirmation": {
+      "type": "object",
+      "description": "自动路由置信度不足时的人工/模型确认记录",
+      "properties": {
+        "confirmed": { "type": "boolean" },
+        "reason": { "type": "string" },
+        "confirmed_by": { "type": "string" }
+      }
+    },
+    "overall_risk": {
+      "type": "string",
+      "enum": ["高", "中", "低"],
+      "description": "合同综合风险评级（缺省时按 risk-rating.md 自动计算）"
+    },
+    "signing_recommendation": {
+      "type": "string",
+      "enum": ["不建议直接签署（须重大修改）", "修改核心条款后可签署", "微调文字后即可签署"],
+      "description": "签署结论建议（缺省时按 overall_risk 自动映射）"
+    },
+    "executive_summary": {
+      "type": "string",
+      "description": "模型撰写的总体评价与核心风险综述叙述段（150-500字，将嵌入意见书第一部分）"
+    },
+    "top_risks": {
+      "type": "array",
+      "description": "Top 红线问题摘要（可传完整对象 {id,title,summary}，或传修订编号字符串如 'R-05'；缺省时自动从高风险修订项生成）",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "required": ["id", "title", "summary"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "summary": { "type": "string" }
+            }
+          }
+        ]
+      }
+    },
+    "missing_clauses": {
+      "type": "array",
+      "description": "可选：显式指定缺失条款清单；缺省时自动从 insert_paragraph_after/before 或带 missing_clause_title 的修订项提取",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "reason", "suggested_clause_text"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "reason": { "type": "string" },
+          "suggested_clause_text": { "type": "string" },
+          "legal_basis": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "pre_signing_checks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "签约前商务与合规核查事项清单"
+    },
+    "checklist_coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["checklist_id", "checklist_title", "status"],
+        "properties": {
+          "checklist_id": { "type": "string" },
+          "checklist_title": { "type": "string" },
+          "status": { "type": "string", "enum": ["已全项核查", "部分适用", "不适用", "待人工确认"] },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "author": {
+      "type": "string",
+      "default": "集团法务AI审查"
+    },
+    "revisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "op", "anchor", "comment"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^R-\\d+$" },
+          "op": {
+            "type": "string",
+            "enum": [
+              "replace",
+              "delete",
+              "insert_text",
+              "insert_paragraph_after",
+              "insert_paragraph_before",
+              "delete_paragraph",
+              "comment_only"
+            ]
+          },
+          "anchor": {
+            "type": "object",
+            "required": ["block_id"],
+            "properties": {
+              "block_id": { "type": "string", "minLength": 1 },
+              "match": { "type": "string" },
+              "occurrence": { "type": "integer", "minimum": 1 },
+              "position": { "type": "string", "enum": ["before", "after"] }
+            }
+          },
+          "new_text": { "type": "string" },
+          "new_paragraphs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "style_from": { "type": "string" },
+          "comment": {
+            "type": "object",
+            "required": ["risk", "issue"],
+            "properties": {
+              "risk": { "type": "string", "enum": ["高", "中", "低"] },
+              "issue": { "type": "string", "minLength": 1 },
+              "basis": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "fallback": { "type": "string" },
+              "suggestion": { "type": "string" }
+            }
+          },
+          "clause_ref": {
+            "type": "string",
+            "description": "可选：原合同条款号（缺省时自动从 blocks.json 提取）"
+          },
+          "original_excerpt": {
+            "type": "string",
+            "description": "可选：原文摘录（缺省时取 anchor.match 或 blocks.json 对应段落前120字）"
+          },
+          "title": {
+            "type": "string",
+            "description": "可选：问题简短标题（用于 Top 风险或新增保护性条款标题）"
+          },
+          "top_risk_summary": {
+            "type": "string",
+            "description": "可选：入选 Top 风险时的简明摘要（缺省取 comment.issue）"
+          },
+          "missing_clause_title": {
+            "type": "string",
+            "description": "可选：作为第三部分“建议新增保护性条款”展示时的标题"
+          },
+          "include_in_missing_clauses": {
+            "type": "boolean",
+            "description": "可选：是否纳入第三部分“建议新增保护性条款”（insert_paragraph_after/before 默认为 true）"
+          },
+          "evidence": {
+            "type": "object",
+            "description": "可审计的原文证据链；quote/span 必须能回指 blocks.json",
+            "properties": {
+              "source_block_id": { "type": "string" },
+              "span_start": { "type": ["integer", "null"], "minimum": 0 },
+              "span_end": { "type": ["integer", "null"], "minimum": 0 },
+              "quote": { "type": "string" },
+              "quote_sha256": { "type": "string" },
+              "evidence_type": {
+                "type": "string",
+                "enum": ["contract_text", "law_citation", "business_confirmation", "manual"]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

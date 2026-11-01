@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://group-legal.internal/schemas/draft-lint.schema.json",
+  "title": "ContractDraftLintReport",
+  "type": "object",
+  "required": ["passed", "findings", "placeholder_count", "note_block_count"],
+  "properties": {
+    "passed": { "type": "boolean" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "kind"],
+        "properties": {
+          "severity": { "enum": ["info", "warning", "error"] },
+          "kind": { "type": "string" },
+          "line": { "type": "integer", "minimum": 1 },
+          "lines": { "type": "array", "items": { "type": "integer", "minimum": 1 } },
+          "text": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "placeholder_count": { "type": "integer", "minimum": 0 },
+    "note_block_count": { "type": "integer", "minimum": 0 },
+    "malformed_table_count": { "type": "integer", "minimum": 0 },
+    "internal_marker_count": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": true
+}
