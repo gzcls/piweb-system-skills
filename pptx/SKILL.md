@@ -1,305 +1,173 @@
 ---
 name: pptx
-description: "PPT/PowerPoint 演示文稿（.pptx）创建、读取、编辑和模板化技能。用于生成汇报PPT/路演/培训/总结/方案，或读取、解析、提取、修改、合并、拆分现有 .pptx，处理模板、版式、母版、图片、图表、备注、批注、speaker notes。关键词：PPT, PPTX, PowerPoint, 幻灯片, 演示文稿, slides, deck, presentation, pitch deck, template。只要 .pptx 作为输入或输出就用本技能；不要用于纯 PDF/Word/Excel 任务。"
-license: Proprietary. LICENSE.txt has complete terms
+description: >-
+  PPT/PowerPoint 演示文稿（.pptx）创建、读取、编辑和模板化技能。
+  默认使用华新 16:9 模板，支持汇报、路演、培训、总结、方案和已有 PPT 改版，
+  并执行内容、结构、圆角组件一致性和逐页视觉质检。
+compatibility: >-
+  需要可读写本地文件的智能体环境及 PPTX 编辑或生成能力。
+  可选脚本要求 Python 3.10+；完整结构校验使用 PyYAML 与 jsonschema，起稿使用 python-pptx 和 Pillow，LibreOffice 视觉证据使用 PyMuPDF。
+  视觉质检另需幻灯片渲染器。核心模板与素材可离线使用。
+metadata:
+  version: "1.3.0"
+  language: "zh-CN"
 ---
 
-# PPTX Skill
+# 华新 PPTX 制作
 
-## 🔴 核心交互与智能默认准则 (CRITICAL INTERACTION & SMART DEFAULT RULE)
+## 目标与边界
 
-**任何时候只要用户发出生成 PPT 的任务指令（如“生成天气报告”、“制作总结汇报”等），执行分支如下：**
+根据用户内容生成清晰、可编辑的华新风格 PPTX。默认使用中文，用户指定其他语言时跟随。
+只有用户明确仅需页纲或文案时才只输出文字；否则必须制作实际 PPTX 文件。
+本包名称固定为 `pptx`，所需资源已内置，不依赖另外安装的风格技能。
 
-1. **智能默认策略（Smart Default）**：
-   - ⚠️ **核心准则**：为了提供最畅快的单回合生成体验，并防止因为 AI 在生成中途提问打断而导致前端输入框被锁定，**无需在中途向用户提问**。
-   - **默认行为**：除非用户在初始指令中**明确表示拒绝模板**（例如说“不要模板背景”、“制作普通白底PPT”），AI 代理**必须默认且直接套用‘华新集团模板风格’**进行生成。
-   - **交付提示**：在完成生成并交付 PPT 文件的回复最后，附带以下友好提示：
-     > *“💡 提示：本报告已默认采用‘华新集团模板风格’进行对齐渲染。如果您需要常规无背景图的版本，请随时对我发出‘使用常规标准流程重新生成’的指令。”*
+## 先定位资源，再制作
 
-2. **分支处理路径**：
-   * **情况 A：套用华新集团模板（默认）**：
-     - 模板背景图和设计规约已**预先提取**并存储于技能包 `assets/` 目录和 `huaxin_theme_config.json` 中。生成时**直接使用下方路径**加载即可。
-     - ⚠️ **核心警告**：由于您的执行目录（Cwd）通常是项目临时目录而非技能包目录，使用普通的相对路径会导致文件找不到。因此，**必须使用相对于本 SKILL.md 所在目录（即技能包根目录）的相对路径，在代码中通过环境变量或系统路径拼接得出绝对路径**来加载模板背景与配置文件：
-       * 封面页/封底页背景图：`assets/huaxin_bg_title.jpeg`
-       * 其他所有页面背景图：`assets/huaxin_bg_content.jpeg`（目录页、过渡页、正文页、总结页等）
-       * 设计规约配置文件：`scripts/office/huaxin_theme_config.json`
-     - 强制根据上述配置文件渲染各个幻灯片的标题及正文坐标、字号、颜色（具体规范详见 [pptxgenjs.md](pptxgenjs.md)）。
-     - ⚠️ **华新模板设计硬约束（必须严格遵守）**：
-       1. **背景图分配总规则**：**仅封面页（title_slide）和封底页（end_slide）使用 `huaxin_bg_title.jpeg` 作为背景图**；**除此之外的所有其他页面**（包括但不限于：目录页、过渡页、正文页、总结页、数据页、对比页等任何类型）**一律使用 `huaxin_bg_content.jpeg` 作为背景图**。配置文件中的 `bg_rules` 字段记录了此规则，各 slide 配置的 `bg_image` 字段也已预先设置好正确的背景图路径，生成代码时应直接引用对应的 slide 配置即可。
-       2. **首页汇报人及日期标签**：生成 PPT 报告时，必须在首页右下角添加一行文字：`汇报人：华新智能小助手   |   汇报日期：XXXX年XX月XX日`。如用户没有明确说明汇报人，默认统一使用 `华新智能小助手`。此标签必须靠右边对齐（文字右侧边距留空至少 5mm），且字体颜色必须使用深色（如 `#44546A` 深灰或 `#334155`）。
-       3. **首页底部白底区域规范**：首页背景图 `huaxin_bg_title.jpeg` 底部约 1/4 的区域底色为纯白色。除了在该区域的右下角放置上述深色的“汇报标签”外，主标题、副标题、气泡框等其他所有幻灯片内容必须尽可能布局在上方 3/4 的深色渐变区域中（如气泡框 y 坐标设为 2.8 左右）。绝对禁止在底部白色底色区域内显示任何浅色文字。
-       4. **正文页白底内容区域规范**：正文页背景图 `huaxin_bg_content.jpeg` 只有顶部切角长条是深色，中间和下方（即 `content_area` 内）全都是白色/浅色背景。因此，在正文内容区域呈现的任何文字（包括正文列表、卡片内部说明、图表文本标签等），必须强制使用深色字体（如 `#44546A` 深灰、`#0F172A` 近黑等），严禁使用白色、浅灰色等浅色文字，保证高对比度和易读性。
-   * **情况 B：用户明确拒绝模板（或要求常规版本重做）**：
-     - 走常规的 PPT 生成流程（如使用 `pptxgenjs` 从零生成无背景图/普通配色的 PPT，或执行普通 XML 模板解包流）。
+所有路径均相对于本 `SKILL.md` 所在目录，不能相对于当前工作目录猜测路径。
+在该目录外建立输出或临时目录；原始模板与背景只读使用，不覆盖本包资产。
 
----
+| 资源 | 用途 | 读取时机 |
+| --- | --- | --- |
+| [原始模板](assets/huaxin-template-16x9.pptx) | 优先作为可编辑制作基础 | 首次选择制作路径时 |
+| [首页背景](assets/cover-background.jpeg) | 首页及答谢尾页 | 放置背景时 |
+| [正文背景](assets/body-background.jpeg) | 普通内容页 | 放置背景时 |
+| [完整视觉规范](references/style-guide.md) | 配色、字体、栅格、卡片、图表、页面规则 | 开始排版前读一次 |
+| [质检清单](references/quality-checklist.md) | 内容、结构、视觉及交付验收 | 交付前 |
+| [资源清单](references/assets-manifest.json) | 固定路径、尺寸、数量和校验值 | 需要检查资源时 |
+| [来源与整合说明](references/source-notes.md) | 来源映射、原文差异及实施说明 | 维护或消除歧义时 |
+| [验收场景](tests/acceptance-cases.md) | 新建、改版、续改及异常边界 | 测试或维护时 |
+| [主题配置](scripts/office/huaxin_theme_config.json) | 画布、正文区、间距和组件圆角 Token | 生成或校验时 |
 
-## Quick Reference
+不要反复读取同一规范，也不要每次运行都遍历或重建解压后的模板 XML。
+只在必要的结构诊断或高层编辑失败时进行一次有针对性的检查；缓存已确认的结果。
 
-| Task | Guide |
-|------|-------|
-| Read/analyze content | `python -m markitdown presentation.pptx` |
-| Create a seven-day weather report | Use `scripts/build_weather_report.py` with structured JSON (workflow below) |
-| Edit or create from template (XML Mode) | Read [editing.md](editing.md) |
-| Create from template (Background + Layout Mode) | Read [pptxgenjs.md](pptxgenjs.md) |
-| Create from scratch | Read [pptxgenjs.md](pptxgenjs.md) |
+## 规则优先级
 
----
+遵循用户当前明确要求；未明确变更的部分，优先保留模板现有品牌结构和背景元素，
+再执行本文件与完整视觉规范。不能因追求版式而改变事实或关键数据含义。
+发现来源之间有影响结论的矛盾时明确标记，不自行猜测。
 
-## Reading Content
+## 工作流程
+
+### 1. 判断任务并读取输入
+
+识别新建、文档转稿、已有 PPT 改版、局部续改或仅需文案。
+读取用户指定的内容；涉及附件时，以实际附件内容而非文件名或片段推测为依据。
+只询问会实质改变结果的缺失项，例如受众、用途、必须保留的内容或强制页数。
+可合理推断的事项直接处理，并在必要时说明关键假设。
+不要为缺失汇报人或日期单独追问，按首页标签规则保留相应字段。
+
+涉及公开的最新信息时使用可用搜索工具核实，并在备注或来源页保留来源。
+没有检索能力就说明限制，不虚构事实、引用或数字。
+用户未要求外部研究时，优先以其材料为内容来源，不擅自填补材料中的事实空缺。
+
+### 2. 一次性确定故事线与页纲
+
+形成页面编号、观点标题、一个核心结论、页面类型、素材和数据来源的简明页表。
+根据内容选择：首页、目录或执行摘要、背景与问题、核心洞察或方案、数据/案例/流程/计划、
+结论与下一步、答谢尾页。中间章节不强制凑齐，完整演示文稿默认必须包含首页和答谢尾页。
+
+用户指定完整稿总页数时，默认包含首页与尾页；局部续改只处理指定范围，不另加重复尾页。
+页数未指定时使用最短但完整的篇幅，避免重复和空泛填充。
+内容过密时优先压缩、重组、改用图示或拆页；强制页数与可读性冲突时先说明冲突。
+
+### 3. 选择制作路径
+
+**优先路径：编辑原模板副本。**
+使用可用的高层 PPTX 编辑能力，保留母版、版式和品牌对象；删除未使用的样张，替换占位内容。
+不假定任意 PPT 库都能无损导入、克隆或保留动画与备注。
+
+**回退路径：新建演示文稿并复用原始背景。**
+只有无法可靠直接编辑模板时，才使用成熟的 PPTX 生成库铺设内置背景，
+再用原生文本框、形状、表格和可编辑图表承载内容。不要把整页正文渲染成一张图片。
+背景中的 Logo、渐变和装饰是原图的一部分，可替换背景图，但不宣称其中每个像素元素都可独立编辑。
+
+**画布注意：**原模板实测为 **10 × 5.625 英寸**；视觉规范的设计基准为
+**13.333 × 7.5 英寸**，二者均为 16:9。编辑原模板时优先保留其原尺寸。
+将设计基准坐标用于原尺寸时按比例换算位置、间距、组件尺寸及字号，不能直接混用。
+默认运行时缩放系数为 `0.75`；正文内容区从 `y=0.84` 英寸开始，默认高 `4.18` 英寸。
+设计基准负责编排和审阅，运行画布负责实际对象尺寸；正文运行字号不得低于 11 pt，
+图表文字不得低于 10 pt，脚注不得低于 8 pt。需要压缩时先重组内容或拆页。
+若需调整整稿尺寸，必须同步缩放对象并渲染复核，不能只改画布属性。
+
+可选起稿命令（在技能根目录执行）：
 
 ```bash
-# Text extraction
-python -m markitdown presentation.pptx
-
-# Visual overview
-python scripts/thumbnail.py presentation.pptx
-
-# Raw XML
-python scripts/office/unpack.py presentation.pptx unpacked/
+python scripts/create_starter.py --output ../output/report-starter.pptx \
+  --title "集团信息条线工作汇报" --subtitle "工作进展与下一步安排" \
+  --body-title "围绕重点任务推进信息化工作"
 ```
 
----
+该脚本仅生成首页、指定标题的空白正文页和答谢尾页，是**未完成的可编辑起稿**，
+不代替内容制作、原模板编辑或最终质检。仅在回退路径或组件测试时使用。
 
-## Editing Workflow
+### 4. 批量制作页面
 
-**Read [editing.md](editing.md) for full details.**
+开始排版前读取完整视觉规范；文案、数据整理和素材准备可在可用环境中并行，
+主流程负责最终整合、事实核对与品牌一致性。只准备成品实际需要的素材。
 
-1. Analyze template with `thumbnail.py`
-2. Unpack → manipulate slides → edit content → clean → pack
+执行以下硬性规则：
 
----
+- 首页和答谢尾页使用原始首页背景；普通内容页使用原始正文背景，不重画近似背景。
+- 首页和尾页大标题默认居中；完整稿尾页必须简洁，不以正文页替代答谢页。
+- 首页右下角放一行 `汇报人｜汇报日期`，有信息则替换对应字段，无信息则保留可编辑字段。
+  以 13.333 × 7.5 英寸基准计，标签 10–13 pt、默认右对齐、低视觉权重，避让 Logo 和背景主体。
+- 正文标题必须位于顶部渐变标题栏内，白色粗体；避让左侧页码区域和右上 Logo。
+  不在白色内容区重复正文标题，不叠加第二套标题栏、Logo、角标或页码。
+- 普通正文首排绑定主题 `safe_area.top`，当前默认落在 `y=0.84` 英寸；长标题只向下调整正文区，不向上侵占标题栏。
+- 采用 12 栏栅格和统一间距节奏：设计基准最小单位为 0.08 英寸，常用值为
+  0.08/0.16/0.24/0.32/0.48 英寸；原模板运行值按 0.75 倍换算。
+- 保留原有页码结构；如需更新页码，只改原有数字对象。没有页码对象时不主动增加。
+- 深灰蓝、蓝紫和白色为主体，红色仅作少量强调；模板背景自带渐变保持原样。
+- 每页一个核心结论，优先采用短句、双栏、三/四卡片、关键数字、流程、时间线或图表。
+- 字体族、字重、数字样式和对齐线全篇一致；缺少原字体时选择已安装的相近无衬线字体并复核。
+- 默认最多 5 个一级要点、4 张主要卡片，或 1 个主图表加 2 个辅助结论。
+  辅助结论对象使用包含 `SUPPORTING_CONCLUSION` 的语义名称，结构校验器按单页统计并执行上限。
+  以设计基准计，正文不得因拥挤而缩到 13 pt 以下；在原模板运行画布上不得低于 11 pt，
+  图表文字不得低于 10 pt，脚注不得低于 8 pt；优先重组或拆页。
+- 设计基准的字号层级为：首页标题 30–44 pt、正文标题 28–34 pt、核心结论 22–28 pt、
+  卡片标题 16–20 pt、正文 13–17 pt、关键数字 28–44 pt、脚注 9–13 pt；运行画布统一按
+  `0.75` 换算并保持层级关系。单页通常不超过四级字号。
+- 图片裁切填充而非拉伸；优先使用 16:9、4:3、3:2 或 1:1 比例，禁止放大低分辨率素材；
+  Logo 不改色、不加效果。图表标明单位、时间范围与来源，饼图/环形图通常不超过 5 类。
+- 卡片、指标块、浅色信息面板和图片容器统一使用 `ROUNDED_RECTANGLE`；视觉圆角控制在
+  10–16 px，当前运行画布对应 `rectRadius=0.104–0.167` 英寸，默认 `0.125` 英寸。
+  同组组件必须使用同一半径，且半径不得大于组件高度的一半。
+- 状态标签和短徽章可以使用胶囊圆角，半径按 `min(组件高度/2, 0.167)` 英寸计算；
+  标题栏、页脚、全宽色带、表格网格、背景和矩形强调条保持 `RECTANGLE`，不要全页滥用圆角。
+- 不要把 `ROUNDED_RECTANGLE` 与矩形强调条叠放；需要贴边强调时，外框和强调条都使用 `RECTANGLE`。
+- 清除模板英文样例、演示数字和制作指令；允许保留用户批准的待补内容以及未提供的首页标签字段。
 
-## Creating from Scratch / Visual Template
+### 5. 改版与续改
 
-**Read [pptxgenjs.md](pptxgenjs.md) for full details.**
+先识别重复、过密、层级混乱或低质量页面，再按模板重构。
+保留用户要求保留的事实、结构、数据含义、品牌元素和备注。
+局部修改保留其他页面；不得悄悄丢失备注、图表数据或用户要求保留的对象。
+当前编辑工具可能损失的功能，应在采用该路径前说明并选择更可靠的方法。
 
-* **从零生成**：当没有现有模板可用时，使用 pptxgenjs 代码直接绘制所有图形和背景。
-* **基于华新集团模板生成（推荐 · 默认）**：背景图和设计规约已**预先提取**，存储在 `assets/` 和 `huaxin_theme_config.json` 中。封面/封底使用 `huaxin_bg_title.jpeg`，其他所有页面（目录、过渡、正文、总结等）使用 `huaxin_bg_content.jpeg`。直接在 pptxgenjs 中读取配置并加载背景图即可，无需额外提取步骤。
+### 6. 质检并交付
 
----
+按质检清单核对内容、单位、日期、来源、可编辑性和页面结构。
+全稿完成后统一渲染一次，并逐页目视检查；只返修未通过页面。
+渲染器支持局部输出时只重渲染返修页；不支持时如实说明需要重渲染的范围。
+不能以跳过数据核对、可编辑性、溢出或视觉检查来提速。
 
-## Seven-day Weather Reports (Preferred Structured Workflow)
-
-For a seven-day weather deck, do **not** author a temporary JavaScript renderer. The stable renderer already handles the Huaxin template, layout, calculations, citations, and QA artifacts.
-
-### Source rules
-
-1. Fetch one primary page that actually contains the seven-day forecast table. A stale news article or search-result snippet is not forecast data.
-2. Use a secondary source only when it independently provides forecast facts for the same dates.
-3. Put a value into `precipProbability`, `humidity`, `uv`, or `alerts` only when the cited source explicitly provides it. Omit unknown optional fields.
-4. Every alert requires its own `sourceUrl`. Never infer typhoons, warnings, or causes from a general news item.
-5. Preserve the retrieval time in ISO-8601 form. The renderer places sources and retrieval time in the deck.
-
-### Input and build
-
-Write one JSON file using [references/weather-report.schema.json](references/weather-report.schema.json). Use [references/weather-report.example.json](references/weather-report.example.json) only as a field example; replace every sample value and URL with retrieved facts.
-
-Then run exactly one build command from the project directory:
+可选结构检查和视觉证据流程：
 
 ```bash
-python /skills/pptx/scripts/build_weather_report.py weather.json weather-report.pptx --qa-dir .pptx-qa
+python scripts/validate_skill.py
+python scripts/validate_skill.py --pptx ../output/report.pptx
 ```
 
-The command validates the JSON, creates a seven-slide deck, checks PPTX package integrity, extracts text to `.pptx-qa/content.txt`, and renders `.pptx-qa/overview.jpg`.
+本机安装 LibreOffice 时，先用 `scripts/office/render_visual.py` 把成品转换成 PDF/PNG，人工逐页检查后以
+`--review-status pass --reviewed-pages ...` 写出证据 JSON，再把该 JSON 传给
+`validate_skill.py --visual-evidence ...`。结构校验器会核对 PPTX/PDF/PNG 哈希和页数，并把匹配的成品标记为
+`visual_check=LIBREOFFICE_PASS`；未提供证据时仍保持 `NOT_PERFORMED`。
 
-After it succeeds:
+验证实际文件能被演示文稿解析器打开；有渲染器时还要完成渲染验证。
+只有实际执行过相应检查才报告其通过，不能将 XML 可解析说成已通过 PowerPoint/WPS 实测。
+缺少必要工具时，明确哪些检查未完成，不标记成“全部通过”。
 
-1. Read `.pptx-qa/overview.jpg` once when the active model supports image input.
-2. Read `.pptx-qa/content.txt` only when the build reports a content problem or visual inspection suggests missing text.
-3. Fix the JSON and rerun the same command only when QA identifies a concrete issue.
-4. Delete the temporary JSON and `.pptx-qa` directory after verification; keep the requested `.pptx`.
-
-This workflow should normally use 5-8 tool calls total: source search/fetch, one JSON write, one build command, one visual read, and at most one evidence-based correction.
-
----
-
-## Execution Discipline
-
-- Prefer relative workspace paths. `/workspace` is the only absolute workspace root shared by bash and file tools; `/skills` is the read-only skill root.
-- Use `write` for a new source/JSON file and `edit` for a precise correction. Do not rebuild a large file through shell heredocs or repeated `sed` substitutions.
-- Batch syntax checking, generation, conversion, and deterministic QA in one maintained pipeline command when a bundled script exists.
-- After the same error class appears twice, stop retrying variants of the same command. Read the exact failing region, change one thing with `edit`/`write`, then rerun the pipeline once.
-- Do not probe the same artifact through `/workspace`, `/tmp`, `/data`, and host paths. If a read fails, verify the one relative path from the current project directory.
-
----
-
-## Design Ideas
-
-**Don't create boring slides.** Plain bullets on a white background won't impress anyone. Consider ideas from this list for each slide.
-
-### Before Starting
-
-- **Pick a bold, content-informed color palette**: The palette should feel designed for THIS topic. If swapping your colors into a completely different presentation would still "work," you haven't made specific enough choices.
-- **Dominance over equality**: One color should dominate (60-70% visual weight), with 1-2 supporting tones and one sharp accent. Never give all colors equal weight.
-- **Dark/light contrast**: Dark backgrounds for title + conclusion slides, light for content ("sandwich" structure). Or commit to dark throughout for a premium feel.
-- **Commit to a visual motif**: Pick ONE distinctive element and repeat it — rounded image frames, icons in colored circles, thick single-side borders. Carry it across every slide.
-
-### Color Palettes
-
-Choose colors that match your topic — don't default to generic blue. Use these palettes as inspiration:
-
-| Theme | Primary | Secondary | Accent |
-|-------|---------|-----------|--------|
-| **Midnight Executive** | `1E2761` (navy) | `CADCFC` (ice blue) | `FFFFFF` (white) |
-| **Forest & Moss** | `2C5F2D` (forest) | `97BC62` (moss) | `F5F5F5` (cream) |
-| **Coral Energy** | `F96167` (coral) | `F9E795` (gold) | `2F3C7E` (navy) |
-| **Warm Terracotta** | `B85042` (terracotta) | `E7E8D1` (sand) | `A7BEAE` (sage) |
-| **Ocean Gradient** | `065A82` (deep blue) | `1C7293` (teal) | `21295C` (midnight) |
-| **Charcoal Minimal** | `36454F` (charcoal) | `F2F2F2` (off-white) | `212121` (black) |
-| **Teal Trust** | `028090` (teal) | `00A896` (seafoam) | `02C39A` (mint) |
-| **Berry & Cream** | `6D2E46` (berry) | `A26769` (dusty rose) | `ECE2D0` (cream) |
-| **Sage Calm** | `84B59F` (sage) | `69A297` (eucalyptus) | `50808E` (slate) |
-| **Cherry Bold** | `990011` (cherry) | `FCF6F5` (off-white) | `2F3C7E` (navy) |
-
-### For Each Slide
-
-**Every slide needs a visual element** — image, chart, icon, or shape. Text-only slides are forgettable.
-
-**Layout options:**
-- Two-column (text left, illustration on right)
-- Icon + text rows (icon in colored circle, bold header, description below)
-- 2x2 or 2x3 grid (image on one side, grid of content blocks on other)
-- Half-bleed image (full left or right side) with content overlay
-
-**Data display:**
-- Large stat callouts (big numbers 60-72pt with small labels below)
-- Comparison columns (before/after, pros/cons, side-by-side options)
-- Timeline or process flow (numbered steps, arrows)
-
-**Visual polish:**
-- Icons in small colored circles next to section headers
-- Italic accent text for key stats or taglines
-
-### Typography
-
-**Choose an interesting font pairing** — don't default to Arial. Pick a header font with personality and pair it with a clean body font.
-
-| Header Font | Body Font |
-|-------------|-----------|
-| Georgia | Calibri |
-| Arial Black | Arial |
-| Calibri | Calibri Light |
-| Cambria | Calibri |
-| Trebuchet MS | Calibri |
-| Impact | Arial |
-| Palatino | Garamond |
-| Consolas | Calibri |
-
-| Element | Size |
-|---------|------|
-| Slide title | 36-44pt bold |
-| Section header | 20-24pt bold |
-| Body text | 14-16pt |
-| Captions | 10-12pt muted |
-
-### Spacing
-
-- 0.5" minimum margins
-- 0.3-0.5" between content blocks
-- Leave breathing room—don't fill every inch
-
-### Avoid (Common Mistakes)
-
-- **Don't repeat the same layout** — vary columns, cards, and callouts across slides
-- **Don't center body text** — left-align paragraphs and lists; center only titles
-- **Don't skimp on size contrast** — titles need 36pt+ to stand out from 14-16pt body
-- **Don't default to blue** — pick colors that reflect the specific topic
-- **Don't mix spacing randomly** — choose 0.3" or 0.5" gaps and use consistently
-- **Don't style one slide and leave the rest plain** — commit fully or keep it simple throughout
-- **Don't create text-only slides** — add images, icons, charts, or visual elements; avoid plain title + bullets
-- **Don't forget text box padding** — when aligning lines or shapes with text edges, set `margin: 0` on the text box or offset the shape to account for padding
-- **Don't use low-contrast elements** — icons AND text need strong contrast against the background; avoid light text on light backgrounds or dark text on dark backgrounds. Specifically, for the Huaxin template: never use light/white/gray text in the white body areas (such as content_area of content slides or the bottom 1/4 area of title/end slides), and always use high-contrast dark text (like #44546A, #0F172A).
-- **NEVER use accent lines under titles** — these are a hallmark of AI-generated slides; use whitespace or background color instead.
-
----
-
-## QA (Required)
-
-Run one deterministic content check and one visual check. Treat QA as evidence gathering: report and fix concrete defects, but do not invent a defect merely to force another iteration.
-
-### Content QA
-
-```bash
-python -m markitdown output.pptx
-```
-
-Check for missing content, typos, wrong order.
-
-**When using templates, check for leftover placeholder text:**
-
-```bash
-python -m markitdown output.pptx | grep -iE "xxxx|lorem|ipsum|this.*(page|slide).*layout"
-```
-
-If grep returns results, fix them before declaring success.
-
-### Visual QA
-
-For weather reports, use the generated `.pptx-qa/overview.jpg`. For other decks, convert slides to images as described below. Inspect directly with the `read` tool when the active model supports images. A separate reviewer is optional for high-stakes or unusually complex decks when a delegation tool is actually available; do not add delegation as a mandatory step for every deck.
-
-Convert slides to images (see [Converting to Images](#converting-to-images)), then use this prompt:
-
-```
-Visually inspect these slides. Assume there are issues — find them.
-
-Look for:
-- Overlapping elements (text through shapes, lines through words, stacked elements)
-- Text overflow or cut off at edges/box boundaries
-- Decorative lines positioned for single-line text but title wrapped to two lines
-- Source citations or footers colliding with content above
-- Elements too close (< 0.3" gaps) or cards/sections nearly touching
-- Uneven gaps (large empty area in one place, cramped in another)
-- Insufficient margin from slide edges (< 0.5")
-- Columns or similar elements not aligned consistently
-- Low-contrast text (e.g., light gray text on cream-colored background)
-- Low-contrast icons (e.g., dark icons on dark backgrounds without a contrasting circle)
-- Text boxes too narrow causing excessive wrapping
-- Leftover placeholder content
-
-For each slide, list actual issues or areas of concern. A clean slide may be reported as clean.
-
-Read and analyze these images:
-1. /path/to/slide-01.jpg (Expected: [brief description])
-2. /path/to/slide-02.jpg (Expected: [brief description])
-
-Report ALL issues found, including minor ones.
-```
-
-### Verification Loop
-
-1. Generate slides → Convert to images → Inspect
-2. List concrete issues found
-3. If issues exist, fix them and re-verify affected slides
-4. Stop after a clean full pass; a no-op fix cycle is neither required nor useful
-
-When the active model cannot inspect images, complete package/text checks, state that visual inspection was unavailable, and do not loop through unreadable image paths.
-
----
-
-## Converting to Images
-
-Convert presentations to individual slide images for visual inspection:
-
-```bash
-python scripts/office/soffice.py --headless --convert-to pdf output.pptx
-pdftoppm -jpeg -r 150 output.pdf slide
-```
-
-This creates `slide-01.jpg`, `slide-02.jpg`, etc.
-
-To re-render specific slides after fixes:
-
-```bash
-pdftoppm -jpeg -r 150 -f N -l N output.pdf slide-fixed
-```
-
----
-
-## Dependencies
-
-- `pip install "markitdown[pptx]"` - text extraction
-- `pip install Pillow` - thumbnail grids
-- `npm install -g pptxgenjs` - creating from scratch
-- LibreOffice (`soffice`) - PDF conversion (auto-configured for sandboxed environments via `scripts/office/soffice.py`)
-- Poppler (`pdftoppm`) - PDF to images
+最终提供实际生成的可编辑 `.pptx` 文件，并简要说明：
+页数与主要结构、关键视觉规则、需补充或复核事项，以及确有的兼容性或验证限制。
+不要声称已上传、安装、发布或完成未执行的操作。

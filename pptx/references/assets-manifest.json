@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "skill_name": "pptx",
+  "version": "1.3.0",
+  "note": "原始资源只读保留。设计基准并非原始 PPTX 的物理尺寸。",
+  "sources": [
+    {
+      "filename": "指令.md",
+      "bytes": 5425,
+      "sha256": "54088bc49b0b7f8b4cf5d9903eaa43507ea2120871245cc1483aff3b3782904e"
+    },
+    {
+      "filename": "template-style-guide.md",
+      "bytes": 6659,
+      "sha256": "7dbb59e2865bad481532da31c4078fabc98ea6a4f207ce460ae2a335070dff12"
+    },
+    {
+      "filename": "huaxin-ppt-style(2).zip",
+      "bytes": 2535530,
+      "sha256": "28e400fc075c146a77cb19d5cb464c08fb52df5fa4fb1e697335d7097c086ce7"
+    }
+  ],
+  "template": {
+    "path": "assets/huaxin-template-16x9.pptx",
+    "width_emu": 9144000,
+    "height_emu": 5143500,
+    "width_in": 10,
+    "height_in": 5.625,
+    "aspect_ratio": "16:9",
+    "slides": 30,
+    "layouts": 11,
+    "media_files": 13
+  },
+  "design_reference": {
+    "width_in": 13.333333333333334,
+    "height_in": 7.5,
+    "note": "文档中的 13.333 为 13 1/3 的近似表示；坐标、间距和字号同步按比例换算。"
+  },
+  "assets": [
+    {
+      "path": "assets/huaxin-template-16x9.pptx",
+      "bytes": 2463832,
+      "sha256": "26e6df8af0c7d8f3dbde05ebb8b92d4185e7f246835794ea365a256468426f43",
+      "unchanged_from_uploaded_zip": true
+    },
+    {
+      "path": "assets/cover-background.jpeg",
+      "bytes": 415284,
+      "sha256": "03f905e33948933395b757eeb8ac43aedf445ae0bfbac69fc49139f876c281f4",
+      "unchanged_from_uploaded_zip": true,
+      "width_px": 3000,
+      "height_px": 1689,
+      "source_part": "ppt/media/image2.jpeg"
+    },
+    {
+      "path": "assets/body-background.jpeg",
+      "bytes": 170767,
+      "sha256": "9a3e8f3177862e113a6dab6421bafd66e6f96e08baae9319eff6a34de3bec1e3",
+      "unchanged_from_uploaded_zip": true,
+      "width_px": 3000,
+      "height_px": 1689,
+      "source_part": "ppt/media/image1.jpeg"
+    }
+  ]
+}

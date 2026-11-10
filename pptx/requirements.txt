@@ -1,0 +1,6 @@
+# Optional helper scripts only; not required to read SKILL.md or use bundled assets.
+PyYAML>=6.0,<7
+jsonschema>=4.23,<5
+python-pptx>=1.0,<2
+Pillow>=10.0,<13
+PyMuPDF>=1.24,<2
