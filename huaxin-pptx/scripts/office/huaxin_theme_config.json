@@ -1,0 +1,128 @@
+{
+  "$schema": "../../references/theme-config.schema.json",
+  "schema_version": 3,
+  "theme": "Huaxin_Group_Theme",
+  "canvas": {
+    "width": 10,
+    "height": 5.625,
+    "units": "in",
+    "note": "Original template canvas. Every geometry value in this file is in inches on this canvas; font sizes are in points."
+  },
+  "safe_area": {
+    "left": 0.5,
+    "right": 0.5,
+    "top": 0.84,
+    "footer_top_clearance": 0.285
+  },
+  "grid": {
+    "columns": 12,
+    "gap": 0.18
+  },
+  "spacing": {
+    "scale": [0.06, 0.12, 0.18, 0.24, 0.36],
+    "card_padding": 0.18,
+    "title_to_content": 0.29,
+    "content_to_footer": 0.24
+  },
+  "density": {
+    "max_top_level_bullets": 5,
+    "max_major_cards": 4,
+    "max_cjk_chars_per_card": 45,
+    "max_major_charts": 1,
+    "max_supporting_conclusions": 2,
+    "max_typography_levels": 4,
+    "max_blocks_per_slide": 2
+  },
+  "components": {
+    "corner_radius": {
+      "min_in": 0.104,
+      "default_in": 0.125,
+      "max_in": 0.167
+    },
+    "border_pt": 0.75
+  },
+  "typography": {
+    "font": "Microsoft YaHei",
+    "line_spacing": 1.12,
+    "sizes_pt": {
+      "cover_title": 28.5,
+      "cover_subtitle": 14.25,
+      "label": 9.75,
+      "slide_title": 22.5,
+      "long_title": 19.5,
+      "section_tab": 18,
+      "conclusion": 18,
+      "card_title": 13.5,
+      "body": 11.25,
+      "key_number": 25.5,
+      "chart": 10,
+      "caption": 8
+    },
+    "floor_pt": {
+      "body": 11,
+      "chart": 10,
+      "caption": 8
+    }
+  },
+  "colors": {
+    "primary": "445469",
+    "brand_blue": "374B9B",
+    "brand_red": "E63237",
+    "white": "FFFFFF",
+    "light_blue_gray": "ADBACA",
+    "text_dark": "3E3A39",
+    "text_black": "212121",
+    "light_gray": "D8D8D8",
+    "panel_fill": "F3F5F9"
+  },
+  "charts": {
+    "max_donut_categories": 5,
+    "series_colors": ["brand_blue", "primary", "light_blue_gray", "brand_red"],
+    "pie_colors": ["brand_blue", "primary", "light_blue_gray", "brand_red", "light_gray"]
+  },
+  "footer": {
+    "x": 0.5,
+    "y": 5.34,
+    "w": 9.0,
+    "h": 0.18,
+    "color": "primary"
+  },
+  "slides": {
+    "cover": {
+      "bg_image": "assets/cover-background.jpeg",
+      "title": {"x": 0.825, "y": 1.5, "w": 8.3475, "h": 0.975},
+      "subtitle": {"x": 0.8625, "y": 2.61, "w": 8.2725, "h": 0.405},
+      "metadata": {"x": 5.2125, "y": 4.845, "w": 4.2375, "h": 0.315}
+    },
+    "body": {
+      "bg_image": "assets/body-background.jpeg",
+      "title": {"x": 1.6725, "y": 0.09375, "w": 6.975, "h": 0.4125},
+      "section_tab": {"x": 0.5, "y": 0.09, "w": 0.68, "h": 0.44},
+      "content_area": {"x": 0.5, "y": 0.84, "w": 9, "h": 4.18}
+    },
+    "closing": {
+      "bg_image": "assets/cover-background.jpeg",
+      "title": {"x": 0.825, "y": 1.575, "w": 8.3475, "h": 0.975}
+    }
+  },
+  "recipes": {
+    "conclusion_h": 0.5,
+    "pill": {"w": 0.46, "h": 0.28},
+    "process": {"pill_h": 0.34, "max_steps": 6},
+    "bullet_row_gap": 0.24,
+    "chart": {"side_w": 2.97, "min_h": 1.6, "caption_h": 0.24, "panel_max_h": 1.7},
+    "table": {"header_h": 0.38, "row_h_max": 0.42, "row_h_min": 0.3, "max_cols": 7},
+    "min_height": {"cards": 1.3, "kpis": 1.35, "process": 1.1, "two_column": 1.6},
+    "stretch_ratio": {"default": 0.5, "kpis": 0.42},
+    "section_title_chars": 10,
+    "toc": {"item_w": 3.1, "center_shift": 1.15},
+    "image_min_ppi": 110
+  },
+  "qa": {
+    "template_markers": [
+      "此处填写", "在这里添加", "单击此处", "according to your", "add your words", "ADD TITLE", "ADD YOUR",
+      "TITLE HERE", "TEXT HERE", "Lorem ipsum", "SED DO EIUSMOD", "I hope you enjoyed", "DESCRIPTION",
+      "KEY WORD", "Thank you", "演讲人：", "时间：", "谢谢观看", "请将本页标题改为核心结论"
+    ]
+  }
+}

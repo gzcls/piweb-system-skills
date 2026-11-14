@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Remove unreferenced files from an unpacked Office package."""
+"""Delete leftover temporary files (*.tmp, *.bak) from an unpacked Office package.
+
+It does NOT remove unreferenced parts; drop unused relationships/parts manually.
+"""
 from __future__ import annotations
 
 import argparse

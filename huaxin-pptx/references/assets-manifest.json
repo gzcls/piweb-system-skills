@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "skill_name": "pptx",
-  "version": "1.3.0",
+  "skill_name": "huaxin-pptx",
+  "version": "2.1.0",
   "note": "原始资源只读保留。设计基准并非原始 PPTX 的物理尺寸。",
   "sources": [
     {

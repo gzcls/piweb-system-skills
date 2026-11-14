@@ -1,9 +1,0 @@
-{
-  "name": "@huaxin/pptx-skill",
-  "private": true,
-  "version": "1.3.0",
-  "description": "Huaxin PPTX creation, editing, and validation helpers",
-  "dependencies": {
-    "pptxgenjs": "^4.0.1"
-  }
-}

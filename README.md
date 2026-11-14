@@ -16,6 +16,7 @@ This repository contains 23 deployable system-level File Skill packages. It incl
 - `edge-tts`
 - `frontend-design`
 - `html-to-pdf`
+- `huaxin-pptx`
 - `image-toolkit`
 - `lucanet-excel-data-extraction`
 - `office-convert`
@@ -23,7 +24,6 @@ This repository contains 23 deployable system-level File Skill packages. It incl
 - `pdf-ocr`
 - `pdf-to-image`
 - `pdf-toolkit`
-- `pptx`
 - `qrcode`
 - `video-toolkit`
 - `xlsx`

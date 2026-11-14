@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Deterministic checks for the distributable PPTX skill package.
+"""Deterministic checks for the distributable huaxin-pptx skill package.
 
 This test intentionally uses only the Python standard library. It verifies
-that package metadata stays aligned and that the Office pack helper filters
-development-only files before they enter an archive.
+that package identity/version stay aligned and that the Office pack helper
+filters development-only files before they enter an archive.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -16,26 +17,28 @@ from pathlib import Path
 from zipfile import ZipFile
 
 
+SKILL_NAME = "huaxin-pptx"
 EXCLUDED_DIRECTORY_NAMES = {".git", ".pytest_cache", "__pycache__", "node_modules"}
 EXCLUDED_SUFFIXES = {".pyc", ".pyo"}
 
 
 def check_metadata(root: Path) -> None:
-    package = json.loads((root / "package.json").read_text(encoding="utf-8"))
-    lock = json.loads((root / "package-lock.json").read_text(encoding="utf-8"))
+    skill = (root / "SKILL.md").read_text(encoding="utf-8")
+    name = re.search(r"^name:\s*(\S+)", skill, re.M)
+    version = re.search(r'^\s+version:\s*"([^"]+)"', skill, re.M)
+    if not name or name.group(1) != SKILL_NAME or root.name != SKILL_NAME:
+        raise AssertionError("SKILL.md name and directory must both be huaxin-pptx")
+    if not version:
+        raise AssertionError("SKILL.md must declare metadata.version")
     manifest = json.loads((root / "references/assets-manifest.json").read_text(encoding="utf-8"))
-
-    version = package.get("version")
-    if not isinstance(version, str) or not version:
-        raise AssertionError("package.json must declare a non-empty version")
-    if lock.get("version") != version or lock.get("packages", {}).get("", {}).get("version") != version:
-        raise AssertionError("package-lock.json root version is out of sync with package.json")
-    if manifest.get("skill_name") != "pptx" or manifest.get("version") != version:
-        raise AssertionError("assets-manifest.json skill identity/version is out of sync")
-    package_dependencies = package.get("dependencies", {})
-    lock_dependencies = lock.get("packages", {}).get("", {}).get("dependencies", {})
-    if package_dependencies != lock_dependencies:
-        raise AssertionError("package-lock.json root dependencies are out of sync with package.json")
+    if manifest.get("skill_name") != SKILL_NAME or manifest.get("version") != version.group(1):
+        raise AssertionError("assets-manifest.json skill identity/version is out of sync with SKILL.md")
+    agent = (root / "agents/openai.yaml").read_text(encoding="utf-8")
+    if f"${SKILL_NAME}" not in agent:
+        raise AssertionError("agents/openai.yaml default prompt must reference $huaxin-pptx")
+    for retired in ("package.json", "package-lock.json", "pptxgenjs.md"):
+        if (root / retired).exists():
+            raise AssertionError(f"retired file still present: {retired}")
 
 
 def check_no_development_artifacts(root: Path) -> None:

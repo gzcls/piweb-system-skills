@@ -1,7 +1,0 @@
-interface:
-  display_name: "华新 PPTX 制作"
-  short_description: "使用华新原始模板与品牌背景，创建、改版并质检可编辑的演示文稿"
-  brand_color: "#374B9B"
-  default_prompt: "使用 $pptx，根据我提供的内容制作或改版华新风格的可编辑 PPTX。"
-policy:
-  allow_implicit_invocation: true

@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://huaxin.local/skills/huaxin-pptx/theme-config.schema.json",
+  "title": "huaxin-pptx theme config (runtime canvas only)",
+  "type": "object",
+  "required": ["$schema", "schema_version", "theme", "canvas", "safe_area", "grid", "spacing", "density",
+               "components", "typography", "colors", "charts", "footer", "slides", "recipes", "qa"],
+  "additionalProperties": false,
+  "$defs": {
+    "positive": {"type": "number", "exclusiveMinimum": 0},
+    "nonNegative": {"type": "number", "minimum": 0},
+    "count": {"type": "integer", "minimum": 1},
+    "hex": {"type": "string", "pattern": "^[0-9A-Fa-f]{6}$"},
+    "colorRef": {"type": "string", "pattern": "^([0-9A-Fa-f]{6}|[a-z][a-z_]*)$"},
+    "assetPath": {"type": "string", "pattern": "^assets/[A-Za-z0-9._-]+\\.(jpe?g|png)$"},
+    "rect": {
+      "type": "object",
+      "required": ["x", "y", "w", "h"],
+      "additionalProperties": false,
+      "properties": {
+        "x": {"$ref": "#/$defs/nonNegative"},
+        "y": {"$ref": "#/$defs/nonNegative"},
+        "w": {"$ref": "#/$defs/positive"},
+        "h": {"$ref": "#/$defs/positive"}
+      }
+    },
+    "size": {
+      "type": "object",
+      "required": ["w", "h"],
+      "additionalProperties": false,
+      "properties": {"w": {"$ref": "#/$defs/positive"}, "h": {"$ref": "#/$defs/positive"}}
+    }
+  },
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema_version": {"const": 3},
+    "theme": {"type": "string", "minLength": 1},
+    "canvas": {
+      "type": "object",
+      "required": ["width", "height", "units"],
+      "additionalProperties": false,
+      "properties": {
+        "width": {"$ref": "#/$defs/positive"},
+        "height": {"$ref": "#/$defs/positive"},
+        "units": {"const": "in"},
+        "note": {"type": "string"}
+      }
+    },
+    "safe_area": {
+      "type": "object",
+      "required": ["left", "right", "top", "footer_top_clearance"],
+      "additionalProperties": false,
+      "properties": {
+        "left": {"$ref": "#/$defs/nonNegative"},
+        "right": {"$ref": "#/$defs/nonNegative"},
+        "top": {"$ref": "#/$defs/nonNegative"},
+        "footer_top_clearance": {"$ref": "#/$defs/positive"}
+      }
+    },
+    "grid": {
+      "type": "object",
+      "required": ["columns", "gap"],
+      "additionalProperties": false,
+      "properties": {"columns": {"const": 12}, "gap": {"$ref": "#/$defs/positive"}}
+    },
+    "spacing": {
+      "type": "object",
+      "required": ["scale", "card_padding", "title_to_content", "content_to_footer"],
+      "additionalProperties": false,
+      "properties": {
+        "scale": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/positive"}},
+        "card_padding": {"$ref": "#/$defs/positive"},
+        "title_to_content": {"$ref": "#/$defs/nonNegative"},
+        "content_to_footer": {"$ref": "#/$defs/nonNegative"}
+      }
+    },
+    "density": {
+      "type": "object",
+      "required": ["max_top_level_bullets", "max_major_cards", "max_cjk_chars_per_card", "max_major_charts",
+                   "max_supporting_conclusions", "max_typography_levels", "max_blocks_per_slide"],
+      "additionalProperties": false,
+      "properties": {
+        "max_top_level_bullets": {"$ref": "#/$defs/count"},
+        "max_major_cards": {"$ref": "#/$defs/count"},
+        "max_cjk_chars_per_card": {"$ref": "#/$defs/count"},
+        "max_major_charts": {"$ref": "#/$defs/count"},
+        "max_supporting_conclusions": {"$ref": "#/$defs/count"},
+        "max_typography_levels": {"$ref": "#/$defs/count"},
+        "max_blocks_per_slide": {"$ref": "#/$defs/count"}
+      }
+    },
+    "components": {
+      "type": "object",
+      "required": ["corner_radius", "border_pt"],
+      "additionalProperties": false,
+      "properties": {
+        "corner_radius": {
+          "type": "object",
+          "required": ["min_in", "default_in", "max_in"],
+          "additionalProperties": false,
+          "properties": {
+            "min_in": {"$ref": "#/$defs/positive"},
+            "default_in": {"$ref": "#/$defs/positive"},
+            "max_in": {"$ref": "#/$defs/positive"}
+          }
+        },
+        "border_pt": {"$ref": "#/$defs/positive"}
+      }
+    },
+    "typography": {
+      "type": "object",
+      "required": ["font", "line_spacing", "sizes_pt", "floor_pt"],
+      "additionalProperties": false,
+      "properties": {
+        "font": {"type": "string", "minLength": 1},
+        "line_spacing": {"$ref": "#/$defs/positive"},
+        "sizes_pt": {
+          "type": "object",
+          "required": ["cover_title", "cover_subtitle", "label", "slide_title", "long_title", "section_tab",
+                       "conclusion", "card_title", "body", "key_number", "chart", "caption"],
+          "additionalProperties": false,
+          "patternProperties": {"^[a-z_]+$": {"$ref": "#/$defs/positive"}}
+        },
+        "floor_pt": {
+          "type": "object",
+          "required": ["body", "chart", "caption"],
+          "additionalProperties": false,
+          "properties": {
+            "body": {"$ref": "#/$defs/positive"},
+            "chart": {"$ref": "#/$defs/positive"},
+            "caption": {"$ref": "#/$defs/positive"}
+          }
+        }
+      }
+    },
+    "colors": {
+      "type": "object",
+      "required": ["primary", "brand_blue", "brand_red", "white", "light_blue_gray", "text_dark", "light_gray", "panel_fill"],
+      "additionalProperties": {"$ref": "#/$defs/hex"}
+    },
+    "charts": {
+      "type": "object",
+      "required": ["max_donut_categories", "series_colors", "pie_colors"],
+      "additionalProperties": false,
+      "properties": {
+        "max_donut_categories": {"$ref": "#/$defs/count"},
+        "series_colors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/colorRef"}},
+        "pie_colors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/colorRef"}}
+      }
+    },
+    "footer": {
+      "description": "Text-only source line above the background stripe: no filled bar, no page number.",
+      "type": "object",
+      "required": ["x", "y", "w", "h", "color"],
+      "additionalProperties": false,
+      "properties": {
+        "x": {"$ref": "#/$defs/nonNegative"},
+        "y": {"$ref": "#/$defs/nonNegative"},
+        "w": {"$ref": "#/$defs/positive"},
+        "h": {"$ref": "#/$defs/positive"},
+        "color": {"$ref": "#/$defs/colorRef"}
+      }
+    },
+    "slides": {
+      "type": "object",
+      "required": ["cover", "body", "closing"],
+      "additionalProperties": false,
+      "properties": {
+        "cover": {
+          "type": "object",
+          "required": ["bg_image", "title", "subtitle", "metadata"],
+          "additionalProperties": false,
+          "properties": {
+            "bg_image": {"$ref": "#/$defs/assetPath"},
+            "title": {"$ref": "#/$defs/rect"},
+            "subtitle": {"$ref": "#/$defs/rect"},
+            "metadata": {"$ref": "#/$defs/rect"}
+          }
+        },
+        "body": {
+          "type": "object",
+          "required": ["bg_image", "title", "section_tab", "content_area"],
+          "additionalProperties": false,
+          "properties": {
+            "bg_image": {"$ref": "#/$defs/assetPath"},
+            "title": {"$ref": "#/$defs/rect"},
+            "section_tab": {"$ref": "#/$defs/rect"},
+            "content_area": {"$ref": "#/$defs/rect"}
+          }
+        },
+        "closing": {
+          "type": "object",
+          "required": ["bg_image", "title"],
+          "additionalProperties": false,
+          "properties": {
+            "bg_image": {"$ref": "#/$defs/assetPath"},
+            "title": {"$ref": "#/$defs/rect"}
+          }
+        }
+      }
+    },
+    "recipes": {
+      "type": "object",
+      "required": ["conclusion_h", "pill", "process", "bullet_row_gap", "chart", "table", "min_height",
+                   "stretch_ratio", "section_title_chars", "toc", "image_min_ppi"],
+      "additionalProperties": false,
+      "properties": {
+        "conclusion_h": {"$ref": "#/$defs/positive"},
+        "pill": {"$ref": "#/$defs/size"},
+        "process": {
+          "type": "object",
+          "required": ["pill_h", "max_steps"],
+          "additionalProperties": false,
+          "properties": {
+            "pill_h": {"$ref": "#/$defs/positive"},
+            "max_steps": {"$ref": "#/$defs/count"}
+          }
+        },
+        "bullet_row_gap": {"$ref": "#/$defs/nonNegative"},
+        "chart": {
+          "type": "object",
+          "required": ["side_w", "min_h", "caption_h", "panel_max_h"],
+          "additionalProperties": false,
+          "patternProperties": {"^[a-z_]+$": {"$ref": "#/$defs/positive"}}
+        },
+        "table": {
+          "type": "object",
+          "required": ["header_h", "row_h_max", "row_h_min", "max_cols"],
+          "additionalProperties": false,
+          "properties": {
+            "header_h": {"$ref": "#/$defs/positive"},
+            "row_h_max": {"$ref": "#/$defs/positive"},
+            "row_h_min": {"$ref": "#/$defs/positive"},
+            "max_cols": {"$ref": "#/$defs/count"}
+          }
+        },
+        "min_height": {
+          "type": "object",
+          "required": ["cards", "kpis", "process", "two_column"],
+          "additionalProperties": false,
+          "patternProperties": {"^[a-z_]+$": {"$ref": "#/$defs/positive"}}
+        },
+        "stretch_ratio": {
+          "type": "object",
+          "required": ["default"],
+          "additionalProperties": false,
+          "patternProperties": {"^[a-z_]+$": {"type": "number", "minimum": 0, "maximum": 1}}
+        },
+        "section_title_chars": {"$ref": "#/$defs/count"},
+        "toc": {
+          "type": "object",
+          "required": ["item_w", "center_shift"],
+          "additionalProperties": false,
+          "properties": {
+            "item_w": {"$ref": "#/$defs/positive"},
+            "center_shift": {"$ref": "#/$defs/nonNegative"}
+          }
+        },
+        "image_min_ppi": {"$ref": "#/$defs/positive"}
+      }
+    },
+    "qa": {
+      "type": "object",
+      "required": ["template_markers"],
+      "additionalProperties": false,
+      "properties": {
+        "template_markers": {"type": "array", "minItems": 1, "uniqueItems": true,
+                             "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}
