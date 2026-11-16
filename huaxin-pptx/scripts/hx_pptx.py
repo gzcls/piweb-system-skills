@@ -8,6 +8,7 @@ recipe constant comes from ``scripts/office/huaxin_theme_config.json``.
 
 CLI
 ---
+  python scripts/hx_pptx.py validate-spec --spec deck.json  # input checks, no deck written
   python scripts/hx_pptx.py build --spec deck.json --output ../output/deck.pptx
   python scripts/hx_pptx.py slots --slide 22          # list replaceable slots of a template page
   python scripts/hx_pptx.py example-spec              # print a complete example spec
@@ -41,9 +42,16 @@ sys.dont_write_bytecode = True
 
 try:
     from pptx import Presentation
-    from pptx.chart.data import CategoryChartData
+    from pptx.chart.data import CategoryChartData, XyChartData
     from pptx.dml.color import RGBColor
-    from pptx.enum.chart import XL_CHART_TYPE, XL_LABEL_POSITION, XL_LEGEND_POSITION
+    from pptx.enum.chart import (
+        XL_AXIS_CROSSES,
+        XL_CHART_TYPE,
+        XL_LABEL_POSITION,
+        XL_LEGEND_POSITION,
+        XL_MARKER_STYLE,
+        XL_TICK_LABEL_POSITION,
+    )
     from pptx.enum.shapes import MSO_SHAPE, MSO_SHAPE_TYPE
     from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
     from pptx.oxml.ns import qn
@@ -104,9 +112,25 @@ def use_font(name: str | None):
         _ACTIVE_FONT = previous
 
 
+def _hex_str(name_or_hex: str) -> str:
+    return COLORS.get(name_or_hex, name_or_hex).lstrip("#").upper()
+
+
 def rgb(name_or_hex: str):
-    value = COLORS.get(name_or_hex, name_or_hex)
-    return RGBColor.from_string(value.lstrip("#").upper())
+    return RGBColor.from_string(_hex_str(name_or_hex))
+
+
+def _is_light_color(name_or_hex: str) -> bool:
+    """Return True when WCAG relative luminance warrants dark label text over this fill."""
+    hx = _hex_str(name_or_hex)
+    if len(hx) != 6:
+        return False
+    channels = []
+    for offset in (0, 2, 4):
+        srgb = int(hx[offset:offset + 2], 16) / 255.0
+        channels.append(srgb / 12.92 if srgb <= 0.04045 else ((srgb + 0.055) / 1.055) ** 2.4)
+    luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+    return luminance > 0.35
 
 
 # --------------------------------------------------------------------------- geometry helpers
@@ -149,14 +173,28 @@ def _rect(spec: dict) -> tuple:
 
 
 # --------------------------------------------------------------------------- text helpers
-def set_font_name(run, name: str) -> None:
-    rpr = run._r.get_or_add_rPr()
+_AFTER_FONT_TAGS = {qn("a:sym"), qn("a:hlinkClick"), qn("a:hlinkMouseOver"), qn("a:rtl"), qn("a:extLst")}
+
+
+def _set_rpr_font(rpr, name: str) -> None:
+    insert_at = next((i for i, child in enumerate(rpr) if child.tag in _AFTER_FONT_TAGS), len(rpr))
     for tag in ("a:latin", "a:ea", "a:cs"):
         element = rpr.find(qn(tag))
         if element is None:
             element = rpr.makeelement(qn(tag), {})
-            rpr.append(element)
+            rpr.insert(insert_at, element)
+            insert_at += 1
         element.set("typeface", name)
+
+
+def set_font_name(run, name: str) -> None:
+    _set_rpr_font(run._r.get_or_add_rPr(), name)
+
+
+def _set_chart_fonts(chart, name: str) -> None:
+    for element in chart._chartSpace.iter():
+        if element.tag.rsplit("}", 1)[-1] in ("rPr", "defRPr", "endParaRPr"):
+            _set_rpr_font(element, name)
 
 
 def _style_run(run, size=None, color=None, bold=None, set_font: bool = True) -> None:
@@ -323,7 +361,9 @@ def add_card(slide, x, y, w, h, title: str, body: str = "", *, name="HX_CARD", a
 def add_source(slide, text: str):
     if not text:
         return None
-    label = text if re.match(r"^(来源|资料来源|数据来源|注|Source)", text) else f"来源：{text}"
+    stripped = text.strip()
+    has_prefix = bool(re.match(r"^(来源|资料来源|数据来源|注|说明|口径|单位|Source|Note)(\s*[：:|｜]|\b)", stripped, re.I))
+    label = stripped if has_prefix else f"来源：{stripped}"
     return add_text(slide, FOOTER["x"], FOOTER["y"], FOOTER["w"], FOOTER["h"],
                     [{"text": label, "size": TYPE["caption"], "color": FOOTER["color"]}],
                     name="HX_SOURCE", anchor="middle")
@@ -387,6 +427,18 @@ def _remove(shape) -> None:
     element = shape._element
     if element.getparent() is not None:
         element.getparent().remove(element)
+
+
+def _remove_from_slide(slide, shape) -> None:
+    """Remove ``shape`` from ``slide`` and drop any chart relationship no longer referenced."""
+    r_id_attr = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+    chart_rids = [el.get(r_id_attr) for el in shape._element.iter(qn("c:chart")) if el.get(r_id_attr)]
+    _remove(shape)
+    if chart_rids:
+        still_used = {el.get(r_id_attr) for el in slide._element.iter(qn("c:chart")) if el.get(r_id_attr)}
+        for rid in chart_rids:
+            if rid not in still_used and rid in slide.part.rels:
+                slide.part.drop_rel(rid)
 
 
 def clone_slide(prs, source_slide):
@@ -824,9 +876,152 @@ def recipe_process(b: Block, block: dict) -> float:
 CHART_TYPES = {"column": XL_CHART_TYPE.COLUMN_CLUSTERED, "bar": XL_CHART_TYPE.BAR_CLUSTERED,
                "stacked_column": XL_CHART_TYPE.COLUMN_STACKED, "stacked_bar": XL_CHART_TYPE.BAR_STACKED,
                "line": XL_CHART_TYPE.LINE_MARKERS, "pie": XL_CHART_TYPE.PIE, "doughnut": XL_CHART_TYPE.DOUGHNUT}
+_XY_SCATTER_TYPES = {
+    XL_CHART_TYPE.XY_SCATTER,
+    XL_CHART_TYPE.XY_SCATTER_LINES,
+    XL_CHART_TYPE.XY_SCATTER_LINES_NO_MARKERS,
+    XL_CHART_TYPE.XY_SCATTER_SMOOTH,
+    XL_CHART_TYPE.XY_SCATTER_SMOOTH_NO_MARKERS,
+}
 
 
-def style_chart(chart, kind: str, single_series: bool, highlight: int | None = None) -> None:
+def _style_point_label(point, *, size_pt: float, color: str, bold: bool = False, position=None,
+                       show_percent: bool = False, show_val: bool = True, num_fmt: str | None = None) -> None:
+    dl = point.data_label
+    dl.font.size = Pt(size_pt)
+    dl.font.color.rgb = rgb(color)
+    dl.font.bold = bold
+    if position is not None:
+        dl.position = position
+    el = dl._get_or_add_dLbl()
+    for tag, flag in (("c:showVal", show_val), ("c:showPercent", show_percent)):
+        node = el.find(qn(tag))
+        if node is not None:
+            node.set("val", "1" if flag else "0")
+    if num_fmt:
+        nf = el.find(qn("c:numFmt"))
+        if nf is None:
+            nf = el.makeelement(qn("c:numFmt"), {})
+            sp_pr = el.find(qn("c:spPr"))
+            el.insert(list(el).index(sp_pr) if sp_pr is not None else len(el), nf)
+        nf.set("formatCode", num_fmt)
+        nf.set("sourceLinked", "0")
+
+
+def _sync_series_dlbls(series, *, show_val: bool, show_percent: bool) -> None:
+    d_lbls = series._element.find(qn("c:dLbls"))
+    if d_lbls is None:
+        return
+    for tag, flag in (("c:showVal", show_val), ("c:showPercent", show_percent)):
+        node = d_lbls.find(qn(tag))
+        if node is not None:
+            node.set("val", "1" if flag else "0")
+
+
+def _nice_axis_bounds(min_val: float, max_val: float, *, pad_ratio: float = 0.16) -> tuple[float, float, float]:
+    span = max(max_val - min(min_val, 0.0), abs(max_val) * 0.2, 1.0)
+    lo = (min_val - span * pad_ratio) if min_val < 0 else 0.0
+    hi = (max_val + span * pad_ratio) if max_val > 0 else 0.0
+    raw_range = hi - lo
+    if raw_range <= 0:
+        return 0.0, 1.0, 0.2
+    raw_step = raw_range / 7.0
+    mag = 10.0 ** math.floor(math.log10(raw_step))
+    norm = raw_step / mag
+    if norm <= 1.0:
+        step = 1.0 * mag
+    elif norm <= 2.0:
+        step = 2.0 * mag
+    elif norm <= 5.0:
+        step = 5.0 * mag
+    else:
+        step = 10.0 * mag
+    nice_min = math.floor(lo / step) * step if lo < 0 else 0.0
+    nice_max = math.ceil(hi / step) * step if hi > 0 else 0.0
+    return round(nice_min, 6), round(nice_max, 6), round(step, 6)
+
+
+def _style_pie_series(plot, kind: str, *, highlight: int | None = None, number_format: str | None = None) -> None:
+    palette = CHARTS["pie_colors"]
+    series = plot.series[0]
+    values = [float(v or 0.0) for v in (series.values or ())]
+    total = sum(abs(v) for v in values)
+    shares = [(abs(v) / total) if total > 0 else 1.0 for v in values]
+    plot.has_data_labels = True
+    labels = plot.data_labels
+    base_pct_fmt = number_format or "0%"
+    labels.number_format, labels.number_format_is_linked = base_pct_fmt, False
+    labels.show_percentage, labels.show_value = True, False
+    labels.font.size = Pt(TYPE["chart"])
+    labels.font.color.rgb = rgb("white")
+    if kind == "pie":
+        d_lbls_el = plot._element.find(qn("c:dLbls"))
+        if d_lbls_el is not None and d_lbls_el.find(qn("c:showLeaderLines")) is None:
+            d_lbls_el.append(d_lbls_el.makeelement(qn("c:showLeaderLines"), {"val": "1"}))
+        n = len(shares)
+        adj_small = next((i for i in range(n) if n >= 2 and 0 < shares[i] < 0.07 and 0 < shares[(i + 1) % n] < 0.07),
+                         None)
+        if adj_small is not None and total > 0:
+            # Place the boundary of adjacent tiny slices at 270 deg (9 o'clock) where tangent is vertical.
+            theta_deg = 360.0 * sum(abs(v) for v in values[:adj_small + 1]) / total
+            first_ang = int(round((270.0 - theta_deg) % 360.0))
+            fsa = plot._element.find(qn("c:firstSliceAng"))
+            if fsa is None:
+                fsa = plot._element.makeelement(qn("c:firstSliceAng"), {})
+                plot._element.append(fsa)
+            fsa.set("val", str(first_ang))
+    for index, point in enumerate(series.points):
+        color = "brand_red" if highlight == index else palette[index % len(palette)]
+        if highlight is not None and highlight != index and color == "brand_red":
+            color = "primary"
+        point.format.fill.solid()
+        point.format.fill.fore_color.rgb = rgb(color)
+        point.format.line.color.rgb = rgb("white")
+        share = shares[index] if index < len(shares) else 1.0
+        outside_small = kind == "pie" and 0 < share < 0.07
+        use_dark = outside_small or (kind == "doughnut" and 0 < share < 0.025) or _is_light_color(color)
+        pt_fmt = ("0.0%" if (not number_format and 0 < share < 0.05
+                             and abs(share * 100 - round(share * 100)) >= 0.05) else base_pct_fmt)
+        _style_point_label(
+            point,
+            size_pt=TYPE["chart"],
+            color="text_dark" if use_dark else "white",
+            position=XL_LABEL_POSITION.OUTSIDE_END if outside_small else None,
+            show_percent=True,
+            show_val=False,
+            num_fmt=pt_fmt,
+        )
+    _sync_series_dlbls(series, show_val=False, show_percent=True)
+
+
+def _infer_number_formats(raw_series: list[dict] | None, series_values: list[list[float]],
+                          explicit_fmt: str | None) -> tuple[str | None, str | None]:
+    if explicit_fmt:
+        return explicit_fmt, explicit_fmt
+    raw_nums = [v for item in (raw_series or []) for v in (item.get("values") or [])
+                if isinstance(v, (int, float)) and not isinstance(v, bool)]
+    vals = raw_nums if raw_nums else [v for s in series_values for v in s if v is not None]
+    if not vals:
+        return None, None
+    max_abs = max(abs(float(v)) for v in vals)
+    comma = "#,##" if max_abs >= 1000 else ""
+    has_float = (any(isinstance(v, float) for v in raw_nums) if raw_nums
+                 else any(abs(v - round(v)) > 1e-6 for v in vals))
+    decimals = 0
+    if has_float:
+        for v in vals:
+            frac = f"{abs(float(v)):.4f}".rstrip("0").split(".")[1]
+            decimals = max(decimals, len(frac))
+        decimals = min(max(decimals, 1), 2)
+    label_fmt = f"{comma}0.{'0' * decimals}" if decimals else (f"{comma}0" if comma else "0")
+    axis_fmt = f"{comma}0" if comma and max_abs >= 10 else None
+    return label_fmt, axis_fmt
+
+
+def style_chart(chart, kind: str, single_series: bool, highlight: int | None = None, *,
+                chart_w: float | None = None, chart_h: float | None = None,
+                unit: str | None = None, number_format: str | None = None,
+                raw_series: list[dict] | None = None) -> None:
     chart.font.size = Pt(TYPE["chart"])
     chart.font.name = _ACTIVE_FONT
     chart.font.color.rgb = rgb("text_dark")
@@ -834,37 +1029,30 @@ def style_chart(chart, kind: str, single_series: bool, highlight: int | None = N
     plot = chart.plots[0]
     if kind in ("pie", "doughnut"):
         chart.has_legend = True
-        chart.legend.position = XL_LEGEND_POSITION.RIGHT
+        chart.legend.position = (XL_LEGEND_POSITION.BOTTOM if (chart_w is not None and chart_w < 5.0)
+                                 else XL_LEGEND_POSITION.RIGHT)
         chart.legend.include_in_layout = False
         chart.legend.font.size = Pt(TYPE["chart"])
-        palette = CHARTS["pie_colors"]
-        for index, point in enumerate(plot.series[0].points):
-            color = "brand_red" if highlight == index else palette[index % len(palette)]
-            if highlight is not None and highlight != index and color == "brand_red":
-                color = "text_dark"
-            point.format.fill.solid()
-            point.format.fill.fore_color.rgb = rgb(color)
-            point.format.line.color.rgb = rgb("white")
-        plot.has_data_labels = True
-        labels = plot.data_labels
-        labels.number_format, labels.number_format_is_linked = "0%", False
-        labels.show_percentage, labels.show_value = True, False
-        labels.font.size = Pt(TYPE["chart"])
-        labels.font.color.rgb = rgb("white")
+        _style_pie_series(plot, kind, highlight=highlight, number_format=number_format)
         if kind == "doughnut":
             hole = plot._element.find(qn("c:holeSize"))
             if hole is None:
                 hole = plot._element.makeelement(qn("c:holeSize"), {})
                 plot._element.append(hole)
             hole.set("val", "60")
+        _set_chart_fonts(chart, _ACTIVE_FONT)
         return
+
     chart.has_legend = not single_series
     if chart.has_legend:
         chart.legend.position = XL_LEGEND_POSITION.TOP
         chart.legend.include_in_layout = False
         chart.legend.font.size = Pt(TYPE["chart"])
     palette = CHARTS["series_colors"]
+    series_values: list[list[float]] = []
     for index, series in enumerate(plot.series):
+        vals = [float(v) for v in (series.values or ()) if v is not None]
+        series_values.append(vals)
         color = palette[index % len(palette)]
         if kind == "line":
             series.format.line.color.rgb = rgb(color)
@@ -873,27 +1061,78 @@ def style_chart(chart, kind: str, single_series: bool, highlight: int | None = N
             series.marker.format.fill.solid()
             series.marker.format.fill.fore_color.rgb = rgb(color)
             series.marker.format.line.color.rgb = rgb(color)
+            if single_series and highlight is not None and 0 <= highlight < len(series.points):
+                pt = series.points[highlight]
+                pt.format.fill.solid()
+                pt.format.fill.fore_color.rgb = rgb("brand_red")
+                pt.marker.style = XL_MARKER_STYLE.CIRCLE
+                pt.marker.size = 8
+                pt.marker.format.fill.solid()
+                pt.marker.format.fill.fore_color.rgb = rgb("brand_red")
+                pt.marker.format.line.color.rgb = rgb("brand_red")
             continue
+        series.invert_if_negative = False
         series.format.fill.solid()
         series.format.fill.fore_color.rgb = rgb(color)
-        if single_series and highlight is not None:
+        if single_series and highlight is not None and 0 <= highlight < len(series.points):
             point = series.points[highlight]
             point.format.fill.solid()
             point.format.fill.fore_color.rgb = rgb("brand_red")
+
     if kind != "line":
         plot.gap_width = 80
         if kind.startswith("stacked"):
             plot.overlap = 100
     value_axis, category_axis = chart.value_axis, chart.category_axis
     category_axis.tick_labels.font.size = Pt(TYPE["chart"])
+    category_axis.tick_label_position = XL_TICK_LABEL_POSITION.LOW
     category_axis.format.line.color.rgb = rgb("light_gray")
     category_axis.has_major_gridlines = False
+    if kind in ("bar", "stacked_bar"):
+        category_axis.reverse_order = True
+        category_axis.crosses = XL_AXIS_CROSSES.MAXIMUM
     value_axis.tick_labels.font.size = Pt(TYPE["chart"])
-    if single_series and kind != "line":
+
+    label_fmt, axis_fmt = _infer_number_formats(raw_series, series_values, number_format)
+    if axis_fmt:
+        value_axis.tick_labels.number_format = axis_fmt
+        value_axis.tick_labels.number_format_is_linked = False
+
+    flat_vals = [v for s in series_values for v in s]
+    min_val = min(flat_vals, default=0.0)
+    max_val = max(flat_vals, default=0.0)
+
+    if single_series and kind in ("column", "bar"):
         plot.has_data_labels = True
         plot.data_labels.font.size = Pt(TYPE["chart"])
         plot.data_labels.font.color.rgb = rgb("text_dark")
         plot.data_labels.position = XL_LABEL_POSITION.OUTSIDE_END
+        if label_fmt:
+            plot.data_labels.number_format = label_fmt
+            plot.data_labels.number_format_is_linked = False
+        value_axis.visible = False
+        value_axis.has_major_gridlines = False
+        span = max(max_val, 0.0) - min(min_val, 0.0)
+        if span > 0:
+            pad_ratio = 0.25 if (kind == "column" and chart_h is not None and chart_h < 2.2) else 0.16
+            if max_val > 0:
+                value_axis.maximum_scale = max_val + span * pad_ratio
+            elif max_val <= 0:
+                value_axis.maximum_scale = 0.0
+            if min_val < 0:
+                value_axis.minimum_scale = min_val - span * pad_ratio
+            elif min_val >= 0:
+                value_axis.minimum_scale = 0.0
+    elif single_series and kind.startswith("stacked"):
+        plot.has_data_labels = True
+        plot.data_labels.font.size = Pt(TYPE["chart"])
+        base_color = palette[0]
+        plot.data_labels.font.color.rgb = rgb("text_dark" if _is_light_color(base_color) else "white")
+        plot.data_labels.font.bold = True
+        plot.data_labels.position = XL_LABEL_POSITION.CENTER
+        if label_fmt:
+            plot.data_labels.number_format = label_fmt
+            plot.data_labels.number_format_is_linked = False
         value_axis.visible = False
         value_axis.has_major_gridlines = False
     else:
@@ -901,6 +1140,45 @@ def style_chart(chart, kind: str, single_series: bool, highlight: int | None = N
         value_axis.major_gridlines.format.line.color.rgb = rgb("light_gray")
         value_axis.major_gridlines.format.line.width = Pt(0.5)
         value_axis.format.line.fill.background()
+        if single_series and kind == "line":
+            plot.has_data_labels = True
+            plot.data_labels.font.size = Pt(TYPE["chart"])
+            plot.data_labels.font.color.rgb = rgb("text_dark")
+            plot.data_labels.position = XL_LABEL_POSITION.ABOVE
+            if label_fmt:
+                plot.data_labels.number_format = label_fmt
+                plot.data_labels.number_format_is_linked = False
+            if highlight is not None and 0 <= highlight < len(plot.series[0].points):
+                for idx_p, pt in enumerate(plot.series[0].points):
+                    is_hl = idx_p == highlight
+                    _style_point_label(
+                        pt,
+                        size_pt=TYPE["chart"],
+                        color="brand_red" if is_hl else "text_dark",
+                        bold=is_hl,
+                        position=XL_LABEL_POSITION.ABOVE,
+                        show_percent=False,
+                        show_val=True,
+                        num_fmt=label_fmt,
+                    )
+                _sync_series_dlbls(plot.series[0], show_val=True, show_percent=False)
+            if not (unit in ("%", "％") and 85.0 <= max_val <= 100.01 and min_val >= 0):
+                nice_min, nice_max, nice_step = _nice_axis_bounds(min_val, max_val, pad_ratio=0.16)
+                value_axis.minimum_scale = nice_min
+                value_axis.maximum_scale = nice_max
+                value_axis.major_unit = nice_step
+        if unit in ("%", "％") and min_val >= 0:
+            if kind.startswith("stacked") and series_values and series_values[0]:
+                col_sums = [sum(max(0.0, s[i]) for s in series_values if i < len(s))
+                            for i in range(len(series_values[0]))]
+                peak = max(col_sums, default=0.0)
+            else:
+                peak = max_val
+            if 85.0 <= peak <= 100.01:
+                value_axis.minimum_scale = 0.0
+                value_axis.maximum_scale = 100.0
+
+    _set_chart_fonts(chart, _ACTIVE_FONT)
 
 
 def chart_data_from(block: dict):
@@ -918,17 +1196,71 @@ def chart_data_from(block: dict):
     return data
 
 
-def recipe_chart(b: Block, block: dict) -> float:
+def xy_chart_data_from(block: dict):
+    x_values = block.get("x_values") or block.get("categories") or []
+    series = block.get("series") or []
+    if not x_values or not series:
+        raise SpecError("散点图需要 x_values（或数值型 categories）与 series")
+    parsed_x: list[float] = []
+    for index, raw in enumerate(x_values, 1):
+        try:
+            parsed_x.append(float(raw))
+        except (TypeError, ValueError):
+            parsed_x.append(float(index))
+    data = XyChartData()
+    for item in series:
+        values = item.get("values") or []
+        if len(values) != len(parsed_x):
+            raise SpecError(f"系列 {item.get('name')!r} 的数值个数与 X 轴坐标数不一致")
+        s = data.add_series(item.get("name") or "系列")
+        for x_val, y_val in zip(parsed_x, values):
+            s.add_data_point(x_val, float(y_val))
+    return data
+
+
+def add_chart_panel(slide, x: float, y: float, w: float, h: float, block: dict, *,
+                    index: int = 1, warnings: list[str] | None = None):
+    """Draw a styled native chart (with optional top-left unit/period caption) inside (x, y, w, h)."""
     kind = block.get("kind", "column")
     if kind not in CHART_TYPES:
         raise SpecError(f"chart.kind 仅支持 {sorted(CHART_TYPES)}")
+    categories = block.get("categories") or []
+    series = block.get("series") or []
     if kind in ("pie", "doughnut"):
-        if len(block.get("categories") or []) > CHARTS["max_donut_categories"]:
+        if len(categories) > CHARTS["max_donut_categories"]:
             raise SpecError(f"饼图/环形图不超过 {CHARTS['max_donut_categories']} 类；更多分类请改用排序条形图（kind=bar）")
-        if len(block.get("series") or []) != 1:
+        if len(series) != 1:
             raise SpecError("饼图/环形图只能有 1 个系列")
-    elif not block.get("unit"):
-        b.warnings.append("图表未提供 unit（单位），请补充")
+    elif not block.get("unit") and warnings is not None:
+        warnings.append("图表未提供 unit（单位），请补充")
+    c = R["chart"]
+    if h < c["min_h"] - 1e-6:
+        raise SpecError(f"图表可用高度 {h:.2f} in 太小（至少 {c['min_h']} in）；请减少上方内容或拆页")
+    highlight = block.get("highlight")
+    if highlight is not None:
+        if not isinstance(highlight, int) or isinstance(highlight, bool) or not (0 <= highlight < len(categories)):
+            raise SpecError(f"chart.highlight 超出分类范围（0–{max(0, len(categories) - 1)}）")
+        if len(series) > 1:
+            if warnings is not None:
+                warnings.append("多系列图表不支持单点 highlight，已忽略该高亮索引")
+            highlight = None
+    caption = " ｜ ".join(part for part in (f"单位：{block['unit']}" if block.get("unit") else "",
+                                           block.get("period") or "") if part)
+    caption_h = c["caption_h"] if caption else 0.0
+    unit_name = "HX_CHART_UNIT" if index == 1 else f"HX_CHART_UNIT_{index}"
+    if caption:
+        add_text(slide, x, y, w, caption_h, [{"text": caption, "size": TYPE["chart"], "color": "primary"}],
+                 name=unit_name, anchor="middle")
+    chart_h = h - caption_h
+    frame = slide.shapes.add_chart(CHART_TYPES[kind], Inches(x), Inches(y + caption_h), Inches(w),
+                                   Inches(chart_h), chart_data_from(block))
+    frame.name = f"HX_CHART_{index}"
+    style_chart(frame.chart, kind, len(series) == 1, highlight, chart_w=w, chart_h=chart_h,
+                unit=block.get("unit"), number_format=block.get("number_format"), raw_series=series)
+    return frame
+
+
+def recipe_chart(b: Block, block: dict) -> float:
     points = [_item(entry) for entry in block.get("points") or []]
     if len(points) > DENSITY["max_supporting_conclusions"]:
         raise SpecError(f"图表页最多 {DENSITY['max_supporting_conclusions']} 个辅助结论（points）")
@@ -936,13 +1268,32 @@ def recipe_chart(b: Block, block: dict) -> float:
     available = min(b.available, float(block.get("height", b.available)))
     if available < c["min_h"]:
         raise SpecError(f"图表可用高度 {available:.2f} in 太小（至少 {c['min_h']} in）；请减少上方内容或拆页")
+    caption = " ｜ ".join(part for part in (f"单位：{block['unit']}" if block.get("unit") else "",
+                                           block.get("period") or "") if part)
+    caption_h = c["caption_h"] if caption else 0.0
     chart_x, chart_w = CONTENT["x"], CONTENT["w"]
     if points:
         chart_w = CONTENT["w"] - c["side_w"] - GAP
         side_x = CONTENT["x"] + chart_w + GAP
-        panel_h = min((available - GAP * (len(points) - 1)) / len(points), c["panel_max_h"])
+        chart_top = b.y + caption_h
+        chart_h = available - caption_h
+        inner_w = c["side_w"] - 2 * PAD
+        needed_each = [
+            2 * PAD
+            + (text_height(p["title"], inner_w, TYPE["card_title"]) + 0.06 if p.get("title") else 0.0)
+            + text_height(p.get("body", ""), inner_w, TYPE["body"])
+            for p in points
+        ]
+        if len(points) == 1:
+            panel_h = min(chart_h, max(needed_each[0] + 0.36, min(chart_h * 0.62, c["panel_max_h"] * 1.2)))
+            _fit(needed_each[0], panel_h, "chart.points")
+            start_y = chart_top + (chart_h - panel_h) / 2
+        else:
+            panel_h = min((chart_h - GAP * (len(points) - 1)) / len(points), c["panel_max_h"])
+            _fit(max(needed_each), panel_h, "chart.points")
+            start_y = chart_top
         for index, point in enumerate(points, 1):
-            panel = add_rounded(b.slide, side_x, b.y + (index - 1) * (panel_h + GAP), c["side_w"], panel_h,
+            panel = add_rounded(b.slide, side_x, start_y + (index - 1) * (panel_h + GAP), c["side_w"], panel_h,
                                 fill="panel_fill", line=None, name=f"HX_SUPPORTING_CONCLUSION_{index}")
             paragraphs = []
             if point.get("title"):
@@ -951,16 +1302,7 @@ def recipe_chart(b: Block, block: dict) -> float:
             if point.get("body"):
                 paragraphs.append({"text": point["body"], "size": TYPE["body"]})
             fill_text(panel.text_frame, paragraphs, anchor="middle", margins=(PAD, PAD, PAD, PAD))
-    caption = " ｜ ".join(part for part in (f"单位：{block['unit']}" if block.get("unit") else "",
-                                           block.get("period") or "") if part)
-    caption_h = c["caption_h"] if caption else 0.0
-    if caption:
-        add_text(b.slide, chart_x, b.y, chart_w, caption_h, [{"text": caption, "size": TYPE["chart"], "color": "primary"}],
-                 name="HX_CHART_UNIT", anchor="middle")
-    frame = b.slide.shapes.add_chart(CHART_TYPES[kind], Inches(chart_x), Inches(b.y + caption_h), Inches(chart_w),
-                                     Inches(available - caption_h), chart_data_from(block))
-    frame.name = "HX_CHART_1"
-    style_chart(frame.chart, kind, len(block["series"]) == 1, block.get("highlight"))
+    add_chart_panel(b.slide, chart_x, b.y, chart_w, available, block, index=1, warnings=b.warnings)
     return b.y + available
 
 
@@ -1122,6 +1464,38 @@ def _enforce_chart_floor(chart) -> None:
             element.set("sz", str(floor))
 
 
+def _normalize_template_chart(chart, *, highlight: int | None = None, skip_recolor: bool = False) -> None:
+    """Normalize cloned template chart palette (removing yellow/bulk-red), negative handling, font floor and EA font."""
+    if not skip_recolor and chart.plots:
+        plot = chart.plots[0]
+        ctype = chart.chart_type
+        if ctype in (XL_CHART_TYPE.PIE, XL_CHART_TYPE.DOUGHNUT):
+            _style_pie_series(plot, "doughnut" if ctype == XL_CHART_TYPE.DOUGHNUT else "pie", highlight=highlight)
+        elif ctype in _XY_SCATTER_TYPES or ctype == XL_CHART_TYPE.LINE_MARKERS:
+            palette = CHARTS["series_colors"]
+            for idx, series in enumerate(plot.series):
+                color = palette[idx % len(palette)]
+                series.format.line.color.rgb = rgb(color)
+                series.format.line.width = Pt(2)
+                series.marker.format.fill.solid()
+                series.marker.format.fill.fore_color.rgb = rgb(color)
+                series.marker.format.line.color.rgb = rgb(color)
+        else:
+            palette = CHARTS["series_colors"]
+            single = len(plot.series) == 1
+            for idx, series in enumerate(plot.series):
+                color = palette[idx % len(palette)]
+                series.invert_if_negative = False
+                series.format.fill.solid()
+                series.format.fill.fore_color.rgb = rgb(color)
+                if single and highlight is not None and 0 <= highlight < len(series.points):
+                    pt = series.points[highlight]
+                    pt.format.fill.solid()
+                    pt.format.fill.fore_color.rgb = rgb("brand_red")
+    _enforce_chart_floor(chart)
+    _set_chart_fonts(chart, _ACTIVE_FONT)
+
+
 def build_template_page(ctx: BuildContext, spec: dict):
     source = int(spec.get("source", 0))
     if not 1 <= source <= PAGE_CLOSING:
@@ -1143,18 +1517,82 @@ def build_template_page(ctx: BuildContext, spec: dict):
                 if run.font.size is not None and run.font.size.pt < FLOOR["body"]:
                     run.font.size = Pt(FLOOR["body"])
     charts = [s for s in shapes if _shape_kind(s) == "chart"]
+    safe_left, safe_right = CONTENT["x"], CONTENT["x"] + CONTENT["w"]
     for frame in charts:
-        _enforce_chart_floor(frame.chart)
+        left_in, width_in = frame.left / EMU_PER_IN, frame.width / EMU_PER_IN
+        if left_in < 0 or left_in + width_in > safe_right + 0.02:
+            new_left = max(safe_left, left_in)
+            right_neighbors = [other.left / EMU_PER_IN for other in charts
+                               if other is not frame and other.left / EMU_PER_IN > max(0.0, left_in) + 0.5]
+            max_right = (min(right_neighbors) - GAP) if right_neighbors else safe_right
+            max_w = min(4.75, max_right - new_left) if right_neighbors else (max_right - new_left)
+            frame.left = Inches(new_left)
+            frame.width = Inches(min(width_in, max(2.0, max_w)))
+
+    chart_highlights: dict[int, int | None] = {}
+    rebuilt_indices: set[int] = set()
     for item in spec.get("charts") or []:
-        chart = charts[int(item.get("index", 0))].chart
-        chart.replace_data(chart_data_from(item))
+        chart_idx = int(item.get("index", 0))
+        if not 0 <= chart_idx < len(charts):
+            raise SpecError(f"template.charts 的索引 {chart_idx} 超出范围（共 {len(charts)} 个图表槽位）")
+        frame = charts[chart_idx]
+        chart = frame.chart
+        chart_highlights[chart_idx] = item.get("highlight")
+        if chart.chart_type in _XY_SCATTER_TYPES:
+            if item.get("x_values") is not None:
+                chart.replace_data(xy_chart_data_from(item))
+            else:
+                left, top, width, height, old_name = frame.left, frame.top, frame.width, frame.height, frame.name
+                shape_pos = shapes.index(frame) if frame in shapes else -1
+                _remove_from_slide(slide, frame)
+                new_frame = slide.shapes.add_chart(XL_CHART_TYPE.LINE_MARKERS, left, top, width, height,
+                                                   chart_data_from(item))
+                new_frame.name = old_name
+                style_chart(
+                    new_frame.chart,
+                    "line",
+                    len(item.get("series") or []) == 1,
+                    item.get("highlight"),
+                    chart_w=width / EMU_PER_IN,
+                    chart_h=height / EMU_PER_IN,
+                    unit=item.get("unit"),
+                    number_format=item.get("number_format"),
+                    raw_series=item.get("series"),
+                )
+                charts[chart_idx] = frame = new_frame
+                chart = new_frame.chart
+                rebuilt_indices.add(chart_idx)
+                if shape_pos >= 0:
+                    shapes[shape_pos] = new_frame
+        else:
+            chart.replace_data(chart_data_from(item))
         if "chart_title" in item:
             chart.has_title = bool(item["chart_title"])
             if item["chart_title"]:
-                chart.chart_title.text_frame.text = item["chart_title"]
+                chart.chart_title.include_in_layout = False
+                fill_text(chart.chart_title.text_frame,
+                          [{"text": str(item["chart_title"]), "size": 12, "color": "primary", "bold": True,
+                            "align": "center"}], anchor="middle")
+    for idx, frame in enumerate(charts):
+        if frame._element.getparent() is not None:
+            _normalize_template_chart(frame.chart, highlight=chart_highlights.get(idx),
+                                      skip_recolor=idx in rebuilt_indices)
+
     tables = [s for s in shapes if _shape_kind(s) == "table"]
+    for t_frame in tables:
+        left_in, width_in = t_frame.left / EMU_PER_IN, t_frame.width / EMU_PER_IN
+        if left_in + width_in > safe_right + 0.02:
+            new_total_emu = int(Inches(safe_right - left_in))
+            old_widths = [col.width for col in t_frame.table.columns]
+            total_old = sum(old_widths) or 1
+            for col, old_w in zip(t_frame.table.columns, old_widths):
+                col.width = Emu(int(round(new_total_emu * old_w / total_old)))
+            t_frame.width = Emu(sum(col.width for col in t_frame.table.columns))
     for item in spec.get("tables") or []:
-        table = tables[int(item.get("index", 0))].table
+        t_idx = int(item.get("index", 0))
+        if not 0 <= t_idx < len(tables):
+            raise SpecError(f"template.tables 的索引 {t_idx} 超出范围（共 {len(tables)} 个表格槽位）")
+        table = tables[t_idx].table
         for r, row in enumerate(item.get("rows") or []):
             for c, value in enumerate(row):
                 if value is None:
@@ -1163,10 +1601,22 @@ def build_template_page(ctx: BuildContext, spec: dict):
                 if cell.text_frame.text.strip():
                     replace_text_keep_format(cell, str(value))
                 else:
-                    fill_text(cell.text_frame, [{"text": str(value)}], anchor="middle")
+                    donor = next((table.cell(r, cc) for cc in range(len(table.columns))
+                                  if cc != c and table.cell(r, cc).text_frame.text.strip()), None)
+                    if donor is not None:
+                        cell._tc.replace(cell._tc.txBody, copy.deepcopy(donor._tc.txBody))
+                        replace_text_keep_format(cell, str(value))
+                    else:
+                        is_hdr = r == 0 and table.first_row
+                        fill_text(cell.text_frame, [{"text": str(value), "color": "white" if is_hdr else "text_dark",
+                                                     "bold": is_hdr, "align": "center"}], anchor="middle")
+                for paragraph in cell.text_frame.paragraphs:
+                    for run in paragraph.runs:
+                        if run.font.size is not None and run.font.size.pt < FLOOR["body"]:
+                            run.font.size = Pt(FLOOR["body"])
     for index in sorted({int(i) for i in spec.get("delete") or []}, reverse=True):
         if 0 <= index < len(shapes):
-            _remove(shapes[index])
+            _remove_from_slide(slide, shapes[index])
     if spec.get("title"):
         set_body_title(slide, spec["title"])
     set_section_tab(slide, spec.get("number"))
@@ -1189,16 +1639,81 @@ def audit_markers(prs) -> list[str]:
                 parts.append(shape.text_frame.text)
             elif _shape_kind(shape) == "table":
                 parts += [cell.text_frame.text for row in shape.table.rows for cell in row.cells]
+            elif _shape_kind(shape) == "chart":
+                cs = shape.chart._chartSpace
+                parts += [t.text for t in cs.iter(qn("a:t")) if t.text]
+                parts += [v.text for v in cs.findall(".//" + qn("c:tx") + "//" + qn("c:v")) if v.text]
         text = " ".join(parts).casefold()
         findings += [f"第 {number} 页残留模板文字：{m}" for m in TEMPLATE_MARKERS if m.casefold() in text]
     return findings
 
 
+def validate_spec(spec: object) -> dict:
+    """Check input structure without loading a template or writing a presentation.
+
+    Geometry, text density and template-slot checks remain in the builders.
+    Missing page type and missing layout retain their content/blank defaults.
+    """
+    if not isinstance(spec, dict):
+        raise SpecError("spec 必须为 JSON 对象")
+    pages = spec.get("slides")
+    if not isinstance(pages, list) or not pages:
+        raise SpecError("spec.slides 必须为非空数组")
+    for page_index, page in enumerate(pages):
+        page_path = f"第 {page_index + 1} 页 slides[{page_index}]"
+        if not isinstance(page, dict):
+            raise SpecError(f"{page_path} 必须为对象")
+        page_type = page.get("type", "content")
+        if not isinstance(page_type, str) or page_type not in PAGE_BUILDERS:
+            raise SpecError(f"{page_path}.type 仅支持 {sorted(PAGE_BUILDERS)}")
+        if page_type != "content" or page.get("layout") is None:
+            continue
+        layout = page["layout"]
+        if not isinstance(layout, (dict, list)):
+            raise SpecError(f"{page_path}.layout 必须为对象或对象数组")
+        blocks = layout if isinstance(layout, list) else [layout]
+        if len(blocks) > DENSITY["max_blocks_per_slide"]:
+            raise SpecError(f"{page_path}.layout 单页最多叠放 {DENSITY['max_blocks_per_slide']} 个版式块；请拆页")
+        for index, block in enumerate(blocks):
+            field = f"{page_path}.layout" + (f"[{index}]" if isinstance(layout, list) else "")
+            if not isinstance(block, dict):
+                raise SpecError(f"{field} 必须为对象")
+            if "recipe" in block:
+                raise SpecError(f"{field}.recipe 不是版式字段；请使用 type（例如 type=chart, kind=doughnut）")
+            kind = block.get("type")
+            if isinstance(kind, str) and kind in CHART_TYPES:
+                raise SpecError(f"{field}.type 应为 chart，图表类型放在 kind={kind}")
+            if not isinstance(kind, str) or kind not in RECIPES:
+                raise SpecError(f"{field}.type 仅支持 {sorted(RECIPES)}")
+            if kind in ("chart", "table") and index < len(blocks) - 1 and "height" not in block:
+                raise SpecError(f"{field}.height：{kind} 放在上方时必须指定 height（英寸）")
+            if kind != "chart":
+                continue
+            chart_kind = block.get("kind", "column")
+            if not isinstance(chart_kind, str) or chart_kind not in CHART_TYPES:
+                raise SpecError(f"{field}.kind 仅支持 {sorted(CHART_TYPES)}；layout.type 固定为 chart")
+            categories, series = block.get("categories"), block.get("series")
+            if not isinstance(categories, list) or not categories:
+                raise SpecError(f"{field}.categories 必须为非空数组")
+            if not isinstance(series, list) or not series:
+                raise SpecError(f"{field}.series 必须为非空数组")
+            for series_index, item in enumerate(series):
+                series_path = f"{field}.series[{series_index}]"
+                if not isinstance(item, dict):
+                    raise SpecError(f"{series_path} 必须为对象")
+                values = item.get("values")
+                if not isinstance(values, list) or len(values) != len(categories):
+                    raise SpecError(f"{series_path}.values 长度必须与 categories 相同")
+                if any(value is not None and (isinstance(value, bool) or not isinstance(value, (int, float))
+                                             or not math.isfinite(value)) for value in values):
+                    raise SpecError(f"{series_path}.values 只接受有限数值或 null")
+    return {"status": "VALID", "slides": len(pages)}
+
+
 def build_deck(spec: dict):
     """Build a Presentation from a spec. Returns (prs, report)."""
-    pages = spec.get("slides") or []
-    if not pages:
-        raise SpecError("spec.slides 不能为空")
+    validate_spec(spec)
+    pages = spec["slides"]
     prs = open_template()
     original_count = len(prs.slides)
     ctx = BuildContext(prs)
@@ -1297,6 +1812,10 @@ EXAMPLE_SPEC = {
 }
 
 
+def reject_json_constant(value: str):
+    raise ValueError(f"JSON 不允许 {value}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -1304,6 +1823,8 @@ def main() -> int:
     build.add_argument("--spec", required=True, type=Path)
     build.add_argument("--output", required=True, type=Path)
     build.add_argument("--force", action="store_true")
+    preflight = sub.add_parser("validate-spec", help="Validate spec structure without writing a deck")
+    preflight.add_argument("--spec", required=True, type=Path)
     slots = sub.add_parser("slots", help="List replaceable slots of a template page")
     slots.add_argument("--slide", required=True, type=int)
     sub.add_parser("example-spec", help="Print a complete example spec")
@@ -1316,9 +1837,13 @@ def main() -> int:
                   "slots": [s for s in list_slots(slide) if s["kind"] != "shape" or s["text"].strip()]}
     else:
         try:
-            prs, result = build_deck(json.loads(args.spec.read_text(encoding="utf-8")))
-            result["output"] = str(save(prs, args.output, args.force))
-        except SpecError as exc:
+            spec = json.loads(args.spec.read_text(encoding="utf-8"), parse_constant=reject_json_constant)
+            if args.command == "validate-spec":
+                result = validate_spec(spec)
+            else:
+                prs, result = build_deck(spec)
+                result["output"] = str(save(prs, args.output, args.force))
+        except (SpecError, ValueError, OSError) as exc:
             print(json.dumps({"status": "SPEC_ERROR", "error": str(exc)}, ensure_ascii=False, indent=2))
             return 2
     print(json.dumps(result, ensure_ascii=False, indent=2))

@@ -233,6 +233,47 @@ def main() -> int:
         assert any("HX_CARD_1" in item for item in bad_stats["radius_violations"]), bad_stats
         assert any("below the body floor" in item for item in bad_diag), bad_diag
 
+        from pptx.chart.data import ChartData
+        from pptx.enum.chart import XL_CHART_TYPE
+        from pptx.util import Inches
+
+        dual_ok = Path(temporary) / "dual-side-by-side-ok.pptx"
+        prs_dual = _prs()
+        s_dual = prs_dual.slides.add_slide(prs_dual.slide_layouts[6])
+        cdata = ChartData()
+        cdata.categories = ["A", "B", "C"]
+        cdata.add_series("系列1", (10, 20, 30))
+        s_dual.shapes.add_chart(XL_CHART_TYPE.DOUGHNUT, Inches(0.5), Inches(1.1), Inches(4.41), Inches(3.8), cdata)
+        s_dual.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(5.09), Inches(1.1), Inches(4.41), Inches(3.8), cdata)
+        prs_dual.save(dual_ok)
+        dual_stats, _ = validator.inspect_pptx(dual_ok, check_bounds=True, density_limits=DENSITY, radius_limits=RADIUS)
+        assert dual_stats["charts_per_slide"] == [2], dual_stats
+        assert dual_stats["major_charts_per_slide"] == [1], dual_stats
+        assert not validator.validate_pptx_density(dual_stats, DENSITY), dual_stats
+
+        dual_bad = Path(temporary) / "dual-over-limit.pptx"
+        prs_bad = _prs()
+        s_stack = prs_bad.slides.add_slide(prs_bad.slide_layouts[6])
+        s_stack.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(0.9), Inches(9.0), Inches(1.9), cdata)
+        s_stack.shapes.add_chart(XL_CHART_TYPE.LINE_MARKERS, Inches(0.5), Inches(3.0), Inches(9.0), Inches(1.9), cdata)
+        s_three = prs_bad.slides.add_slide(prs_bad.slide_layouts[6])
+        for idx_c in range(3):
+            s_three.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5 + idx_c * 3.1), Inches(1.1),
+                                     Inches(2.8), Inches(3.5), cdata)
+        cdata_marker = ChartData()
+        cdata_marker.categories = ["A", "B"]
+        cdata_marker.add_series("Y 值", (1, 2))
+        s_marker = prs_bad.slides.add_slide(prs_bad.slide_layouts[6])
+        s_marker.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.5), Inches(1.1), Inches(8.0), Inches(3.5),
+                                  cdata_marker)
+        prs_bad.save(dual_bad)
+        over_stats, over_warnings = validator.inspect_pptx(dual_bad, check_bounds=True, density_limits=DENSITY,
+                                                           radius_limits=RADIUS, markers=("Y 值",))
+        assert over_stats["major_charts_per_slide"] == [2, 3, 1], over_stats
+        over_diag = validator.validate_pptx_density(over_stats, DENSITY)
+        assert sum("density.max_major_charts is 1" in d for d in over_diag) == 2, over_diag
+        assert any("Y 值" in w for w in over_warnings), over_warnings
+
     print("Density regression checks PASSED")
     return 0
 

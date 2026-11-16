@@ -135,6 +135,166 @@ def main() -> int:
                                    "--output", str(ROOT / "x.pptx"), "--title", "测试"], capture_output=True)
         assert rejected.returncode != 0 and not (ROOT / "x.pptx").exists()
 
+        # 5. Chart formatting, dual-chart helper & template 22/23 regressions.
+        from lxml import etree
+        from pptx.oxml.ns import qn
+
+        chart_reg = tmp / "chart-regressions.pptx"
+        prs_cr, rep_cr = hx.build_deck({
+            "complete": False,
+            "slides": [
+                {
+                    "type": "content",
+                    "title": "负值柱状与单系列堆积边界",
+                    "layout": [
+                        {
+                            "type": "chart",
+                            "kind": "bar",
+                            "height": 2.0,
+                            "unit": "%",
+                            "categories": ["项目A", "项目B", "项目C"],
+                            "series": [{"name": "增速", "values": [28.6, -9.4, 14.25]}],
+                            "highlight": 0,
+                        },
+                        {
+                            "type": "cards",
+                            "items": [{"title": "单系列堆积", "body": "验证居中白字与横向反转"},
+                                      {"title": "负值不反相", "body": "验证负值不错误变白"}],
+                        },
+                    ],
+                },
+                {
+                    "type": "content",
+                    "title": "单系列堆积柱图居中标签",
+                    "layout": {
+                        "type": "chart",
+                        "kind": "stacked_column",
+                        "unit": "项",
+                        "categories": ["Q1", "Q2", "Q3"],
+                        "series": [{"name": "结项", "values": [6, 9, 14]}],
+                        "highlight": 2,
+                    },
+                },
+                {
+                    "type": "content",
+                    "title": "饼图小扇区外置与浅色深字对比",
+                    "layout": {
+                        "type": "chart",
+                        "kind": "pie",
+                        "unit": "百万元",
+                        "categories": ["A", "B", "C", "D", "E"],
+                        "series": [{"name": "占比", "values": [47.5, 24.8, 23.6, 2.3, 1.8]}],
+                        "highlight": 1,
+                    },
+                },
+                {
+                    "type": "content",
+                    "title": "单系列折线标签与高亮标记",
+                    "layout": {
+                        "type": "chart",
+                        "kind": "line",
+                        "unit": "万元",
+                        "categories": ["Q1", "Q2", "Q3", "Q4"],
+                        "series": [{"name": "均价", "values": [18.5, 21.2, 24.8, 29.6]}],
+                        "highlight": 3,
+                    },
+                },
+                {
+                    "type": "template",
+                    "source": 22,
+                    "title": "模板二十二页标题与表头补齐",
+                    "source_note": "单位：百万元｜合并口径",
+                    "charts": [{
+                        "index": 0,
+                        "chart_title": "季度收益趋势",
+                        "categories": ["Q1", "Q2", "Q3", "Q4"],
+                        "series": [{"name": "利润", "values": [12, 19, 28, 36]},
+                                   {"name": "收入", "values": [95, 130, 175, 210]}],
+                    }],
+                    "tables": [{
+                        "index": 0,
+                        "rows": [["季度", "收入", "利润", "利润率"],
+                                 ["一季度", "95", "12", "12.6%"],
+                                 ["二季度", "130", "19", "14.6%"],
+                                 ["三季度", "175", "28", "16.0%"],
+                                 ["四季度", "210", "36", "17.1%"]],
+                    }],
+                },
+                {
+                    "type": "template",
+                    "source": 23,
+                    "title": "模板二十三页双图全量替换",
+                    "source_note": "说明：测试数据",
+                    "charts": [
+                        {
+                            "index": 0,
+                            "chart_title": "区域构成",
+                            "categories": ["华东", "华南", "华北", "海外"],
+                            "series": [{"name": "销售", "values": [12.6, 6.8, 4.2, 2.4]}],
+                        },
+                        {
+                            "index": 1,
+                            "chart_title": "客单均价",
+                            "categories": ["Q1", "Q2", "Q3", "Q4"],
+                            "series": [{"name": "均价", "values": [18.5, 21.2, 24.8, 29.6]}],
+                            "highlight": 3,
+                        },
+                    ],
+                },
+            ],
+        })
+        dual_s = hx.add_body_slide(prs_cr, "双图并排对比辅助函数验证")
+        cols2 = hx.columns(2)
+        hx.add_chart_panel(dual_s, cols2[0][0], hx.CONTENT["y"], cols2[0][1], hx.CONTENT["h"],
+                           {"kind": "doughnut", "unit": "%", "categories": ["A", "B", "C", "D", "E"],
+                            "series": [{"name": "构成", "values": [34, 26, 18, 13, 9]}]}, index=1)
+        hx.add_chart_panel(dual_s, cols2[1][0], hx.CONTENT["y"], cols2[1][1], hx.CONTENT["h"],
+                           {"kind": "column", "unit": "%", "categories": ["战略", "重点", "长尾"],
+                            "series": [{"name": "去年", "values": [78, 66, 36]},
+                                       {"name": "今年", "values": [98, 86, 49]}]}, index=2)
+        hx.save(prs_cr, chart_reg)
+        assert not rep_cr["warnings"], rep_cr["warnings"]
+        cr_stats = check_clean(validator, theme, chart_reg, 7)
+        assert cr_stats["charts_per_slide"] == [1, 1, 1, 1, 1, 2, 2], cr_stats
+        assert cr_stats["major_charts_per_slide"] == [1, 1, 1, 1, 1, 1, 1], cr_stats
+
+        deck_cr = Presentation(str(chart_reg))
+        assert not hx.audit_markers(deck_cr), hx.audit_markers(deck_cr)
+        bar_xml = etree.tostring(next(s.chart for s in deck_cr.slides[0].shapes if getattr(s, "has_chart", False) and s.has_chart)._chartSpace, encoding="unicode")
+        assert '<c:invertIfNegative val="0"/>' in bar_xml and '<c:tickLblPos val="low"/>' in bar_xml
+        assert '<c:orientation val="maxMin"/>' in bar_xml
+        sc_xml = etree.tostring(next(s.chart for s in deck_cr.slides[1].shapes if getattr(s, "has_chart", False) and s.has_chart)._chartSpace, encoding="unicode")
+        assert '<c:dLblPos val="ctr"/>' in sc_xml and "outEnd" not in sc_xml
+        pie_xml = etree.tostring(next(s.chart for s in deck_cr.slides[2].shapes if getattr(s, "has_chart", False) and s.has_chart)._chartSpace, encoding="unicode")
+        assert 'val="outEnd"' in pie_xml and 'val="3E3A39"' in pie_xml and "firstSliceAng" in pie_xml
+        line_xml = etree.tostring(next(s.chart for s in deck_cr.slides[3].shapes if getattr(s, "has_chart", False) and s.has_chart)._chartSpace, encoding="unicode")
+        assert 'val="E63237"' in line_xml and '<c:max val="35.0"/>' in line_xml
+        t22_slide = deck_cr.slides[4]
+        t22_table_frame = next(s for s in t22_slide.shapes if s.has_table)
+        assert t22_table_frame.table.cell(0, 0).text_frame.text == "季度"
+        assert (t22_table_frame.left + t22_table_frame.width) / 914400 <= 9.52
+        t22_src = next(s for s in t22_slide.shapes if s.name == "HX_SOURCE").text_frame.text
+        assert t22_src.startswith("单位：") and "来源：单位" not in t22_src
+        t23_charts = [s for s in hx.iter_shapes(deck_cr.slides[5].shapes) if hx._shape_kind(s) == "chart"]
+        assert len(t23_charts) == 2 and t23_charts[0].left >= 0
+        t23_pie_xml = etree.tostring(t23_charts[0].chart._chartSpace, encoding="unicode")
+        assert "FABE00" not in t23_pie_xml.upper()
+
+        # Unreplaced template 23 slot 1 ("Y 值") must be caught by audit_markers, and numeric x_values keeps XY_SCATTER.
+        prs_unrep, _ = hx.build_deck({"complete": False, "slides": [{"type": "template", "source": 23, "title": "未替换右图"}]})
+        assert any("Y 值" in m for m in hx.audit_markers(prs_unrep))
+        prs_xy, _ = hx.build_deck({"complete": False, "slides": [{"type": "template", "source": 23, "title": "保留散点图",
+                                   "charts": [{"index": 1, "x_values": [1.0, 2.5, 4.0],
+                                               "series": [{"name": "实测", "values": [10, 20, 35]}]}]}]})
+        assert not hx.audit_markers(prs_xy)
+        expect_spec_error(hx, {"slides": [{"type": "content", "title": "越界高亮", "layout": {
+            "type": "chart", "kind": "column", "unit": "%", "categories": ["A", "B"],
+            "series": [{"name": "s", "values": [1, 2]}], "highlight": 5}}]}, "超出分类范围")
+        _, hl_rep = hx.build_deck({"complete": False, "slides": [{"type": "content", "title": "多系列忽略单点高亮", "layout": {
+            "type": "chart", "kind": "column", "unit": "%", "categories": ["A", "B"],
+            "series": [{"name": "s1", "values": [1, 2]}, {"name": "s2", "values": [3, 4]}], "highlight": 1}}]})
+        assert any("highlight" in w for w in hl_rep["warnings"]), hl_rep
+
     # 4. Hard rules raise SpecError instead of producing a crowded slide.
     content = lambda layout: {"slides": [{"type": "content", "title": "测试页", "layout": layout}]}  # noqa: E731
     long_title = "这是一个明显超过二十五个字的正文标题因此必须被拒绝并要求压缩"

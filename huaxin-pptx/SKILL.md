@@ -9,7 +9,7 @@ compatibility: >-
   需要可读写本地文件的环境和 Python 3.10+。生成与检查依赖 python-pptx、Pillow、PyYAML、jsonschema；
   视觉证据依赖 LibreOffice 与 PyMuPDF。模板、背景和脚本均可离线使用。
 metadata:
-  version: "2.1.0"
+  version: "2.1.1"
   language: "zh-CN"
 ---
 
@@ -70,14 +70,16 @@ python-pptx 的圆角比例**必须换算**：`shape.adjustments[0] = 半径 / m
 局部续改只处理指定的页面范围，不另加首页或尾页。
 
 ### 4.3 生成（首选：克隆原模板）
-1. 按 [layouts.md](references/layouts.md) 写 spec JSON；`python scripts/hx_pptx.py example-spec` 可以输出一份完整示例。
-2. 运行 `python scripts/hx_pptx.py build --spec <spec.json> --output <技能目录外>/<name>.pptx`。
+1. 先运行 `python scripts/hx_pptx.py example-spec` 读取完整示例，再按 [layouts.md](references/layouts.md) 写 spec JSON。版式块使用 `type`，图表使用 `type=chart` 与 `kind=doughnut/line/...`，不要猜测字段名。
+2. 先运行 `python scripts/hx_pptx.py validate-spec --spec <spec.json>`；返回 `VALID` 后运行 `python scripts/hx_pptx.py build --spec <spec.json> --output <技能目录外>/<name>.pptx`。预检不写文件，只检查输入结构，布局容量仍由构建与质检验证。
    - 首页、目录、章节页、答谢页直接克隆原模板第 1、2、4、30 页，并按规则替换文字。首页右下角合并为一行 `汇报人｜汇报日期`。
    - 正文页使用模板正文版式，由配方生成原生文本、圆角卡片、表格和可编辑图表。
    - 想复用模板信息图页时，先运行 `python scripts/hx_pptx.py slots --slide N` 查看槽位，再用 `template` 类型逐槽替换文字。
    - 违反硬规则（超出字数、超出密度、放不下）时构建会**直接报错**。按提示压缩、重组或拆页，不要绕过。
 3. 配方无法表达的页面，用库函数在同一份演示文稿上补画（见 [layouts.md](references/layouts.md) 第 5 节），对象命名遵循 `HX_*` 规范。
 4. 回退路径：只有无法使用模板克隆时，才用 `scripts/create_starter.py` 生成以背景图起稿的未完成稿。这条路径不保留母版。
+
+涉及循环、XML 修复或多行逻辑时，将代码写入工作区 `.py` 文件再执行；不要将字面量 `\n` 拼进 `python -c`。简单单行查询可使用 `python -c`。`prs.slides` 只按整数索引访问；选取范围使用 `list(prs.slides)[start:end]` 或 `enumerate(prs.slides)`，不要直接对该集合切片。
 
 ### 4.4 硬约束
 - 首页和尾页使用原始首页背景，正文使用原始正文背景，不重画近似背景，不叠加第二套标题栏、Logo 或页码。

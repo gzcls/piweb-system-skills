@@ -2,6 +2,8 @@
 name: docx
 description: "Word 文档（.docx/.dotx/.doc）创建、读取、编辑和格式化技能。用于用户要生成或处理 Word 文档、Word 模板、报告、公文、通知、合同、信函，或需要目录、标题、页眉页脚、页码、表格、图片、批注、修订、查找替换、从 .docx/.dotx 提取或重组内容。关键词：Word, docx, dotx, doc, 生成Word, 编辑Word, Word报告, 模板, tracked changes, comments, template。不要用于 PDF、Excel/CSV 表格、PPT 或与 Word 文档无关的代码任务；结构化 JSON 快速生成 Word 可用 data-to-docx。"
 license: Proprietary. LICENSE.txt has complete terms
+metadata:
+  version: "1.0.1"
 ---
 
 # DOCX creation, editing, and analysis
@@ -29,6 +31,8 @@ For new documents or requested restyling, read [references/document-design.md](r
 
 `docx` is preinstalled — do not run `npm install` first; write the script and `require('docx')` directly. Only if that require fails: `npm install docx`. The model knows the API; these are the footguns:
 
+Write multiline generation or repair logic to a workspace `.js` or `.py` file and execute that file. Do not embed literal `\n` separators in `python -c`; the shell does not turn them into Python source newlines. Simple single-line inspection commands can still use `python -c`.
+
 - **Page size defaults to A4.** For US Letter set `page: { size: { width: 12240, height: 15840 } }` (DXA; 1440 = 1″).
 - **Landscape:** pass portrait dimensions and `orientation: PageOrientation.LANDSCAPE` — docx-js swaps width/height internally.
 - **Tables need dual widths:** set `columnWidths` on the table AND `width` on every cell, both in `WidthType.DXA` (PERCENTAGE breaks in Google Docs). Column widths must sum to the table width, which must fit the available region. Use explicit grid spans for merged cells; each merged width must equal the sum of its spanned columns.
@@ -36,12 +40,15 @@ For new documents or requested restyling, read [references/document-design.md](r
 - **Lists:** never insert `•` literally; use a `numbering` config with `LevelFormat.BULLET`.
 - **`ImageRun` requires `type:`** (`"png"`, `"jpg"`, …).
 - **`PageBreak` must be inside a `Paragraph`.**
+- **Page numbers must be inside a `TextRun`:** `new Paragraph({ children: [new TextRun("Page "), new TextRun({ children: [PageNumber.CURRENT] })] })`. Do not put `PageNumber.CURRENT` or raw text directly in paragraph children. In XML, text belongs in `w:r/w:t` and fields in valid field elements, never directly under `w:p`.
 - **Never use `\n`** — use separate `Paragraph` elements.
 - **TOC:** headings must use built-in `HeadingLevel.*`; custom heading styles need `outlineLevel` set or they won't appear.
 - **Don't use a table as a horizontal rule** — use a paragraph bottom border instead.
 - **Dot-leader / right-aligned-on-same-line:** use `PositionalTab` (`alignment: PositionalTabAlignment.RIGHT`, `leader: PositionalTabLeader.DOT`) inside a `TextRun`, not literal `.` or space padding.
 
 ## Verify the output
+
+First run `python scripts/office/validate.py input.docx` for OOXML and relationship validation. Repair the generator or the specific invalid XML and rerun validation; do not remove a footer or font table merely to silence an error. In particular, an unreferenced font table needs its relationship repaired or its unused status verified. Opening or rendering successfully does not replace this structural check.
 
 After writing a `.docx`, run `python scripts/design_validate.py input.docx --pdf output.pdf --expected-font "Microsoft YaHei" --json validation.json` for geometry, font, content, vertical-boundary, blank-page, and orphan-heading checks, then render and look at every page. Rendering success or extracted text alone is not visual acceptance. Use a fresh output directory so a stale PDF cannot count as a successful conversion.
 

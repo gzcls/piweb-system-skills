@@ -305,7 +305,18 @@ def validate_pptx_density(stats: dict, density: dict) -> list[str]:
 
     per_slide('bullet_paragraphs_per_slide', 'max_top_level_bullets', 'bullet paragraphs')
     per_slide('named_cards_per_slide', 'max_major_cards', 'named card/panel shapes')
-    per_slide('charts_per_slide', 'max_major_charts', 'charts')
+    chart_limit = positive_int('max_major_charts')
+    chart_values = stats.get('major_charts_per_slide')
+    raw_chart_values = stats.get('charts_per_slide')
+    if not isinstance(chart_values, list):
+        chart_values = raw_chart_values
+    if chart_limit is not None and isinstance(chart_values, list):
+        for index, value in enumerate(chart_values, start=1):
+            if isinstance(value, int) and value > chart_limit:
+                reported = (raw_chart_values[index - 1]
+                            if isinstance(raw_chart_values, list) and index - 1 < len(raw_chart_values)
+                            else value)
+                diagnostics.append(f'Slide {index} has {reported} charts; density.max_major_charts is {chart_limit}.')
     per_slide('supporting_conclusion_counts', 'max_supporting_conclusions', 'named supporting conclusion shapes')
     per_slide('typography_levels_per_slide', 'max_typography_levels', 'explicit typography levels')
     cjk_limit = positive_int('max_cjk_chars_per_card')
@@ -360,7 +371,24 @@ def validate_pptx_density(stats: dict, density: dict) -> list[str]:
 def _inspect_slide(slide_root: ET.Element, label: str, scale: float, radius: dict,
                    body_floor: float | None, caption_floor: float) -> dict:
     """Per-slide statistics: density counts, typography, floor and corner-radius violations."""
-    result = {'bullets': 0, 'charts': len(slide_root.findall('.//c:chart', NS)), 'cards': 0, 'supporting': 0,
+    chart_frames = [gf for gf in slide_root.findall('.//p:graphicFrame', NS) if gf.find('.//c:chart', NS) is not None]
+    raw_charts = len(slide_root.findall('.//c:chart', NS))
+    major_charts = raw_charts
+    if raw_charts == 2 and len(chart_frames) == 2:
+        boxes = []
+        for gf in chart_frames:
+            xfrm = gf.find('p:xfrm', NS)
+            off = xfrm.find('a:off', NS) if xfrm is not None else None
+            ext = xfrm.find('a:ext', NS) if xfrm is not None else None
+            if off is not None and ext is not None:
+                x_in = int(off.get('x', '0')) / 914400
+                w_in = int(ext.get('cx', '0')) / 914400
+                boxes.append((x_in, x_in + w_in, w_in))
+        if len(boxes) == 2:
+            boxes.sort(key=lambda item: item[0])
+            if all(0 < item[2] <= 4.8 * scale + 0.02 for item in boxes) and boxes[0][1] <= boxes[1][0] + 0.02 * scale:
+                major_charts = 1
+    result = {'bullets': 0, 'charts': raw_charts, 'major_charts': major_charts, 'cards': 0, 'supporting': 0,
               'levels': set(), 'sizes': [], 'rounded': 0, 'text_rounded': 0, 'unnamed_rounded': 0,
               'no_font_size': 0, 'max_cjk': 0, 'floor_violations': [], 'radius_violations': [],
               'card_shape_violations': [], 'radius_inconsistency': None}
@@ -530,6 +558,7 @@ def inspect_pptx(path: Path, check_bounds: bool = False, density_limits: dict | 
         'named_cards_per_slide': per('cards'),
         'named_card_count': sum(per('cards')),
         'charts_per_slide': per('charts'),
+        'major_charts_per_slide': per('major_charts'),
         'supporting_conclusion_counts': per('supporting'),
         'max_supporting_conclusions_per_slide': max(per('supporting'), default=0),
         'max_cjk_chars_per_named_card': max(per('max_cjk'), default=0),
@@ -553,7 +582,22 @@ def inspect_pptx(path: Path, check_bounds: bool = False, density_limits: dict | 
         for number, name in enumerate(slide_names, start=1):
             if _off_slide_objects(xml[name], width, height):
                 warnings.append(f'slide {number}: a top-level object extends off slide; inspect its intent visually.')
-            content = ' '.join(t.text or '' for t in xml[name].findall('.//a:t', NS)).casefold()
+            slide_texts = [t.text or '' for t in xml[name].findall('.//a:t', NS)]
+            slide_rels_name = posixpath.join(posixpath.dirname(name), '_rels', f'{posixpath.basename(name)}.rels')
+            slide_rels = xml.get(slide_rels_name)
+            if slide_rels is not None:
+                base_dir = posixpath.dirname(name)
+                for rel in slide_rels.findall('r:Relationship', NS):
+                    if rel.get('TargetMode') == 'External':
+                        continue
+                    rel_target = unquote(rel.get('Target', '').split('#', 1)[0])
+                    resolved_part = (rel_target.lstrip('/') if rel_target.startswith('/')
+                                     else posixpath.normpath(posixpath.join(base_dir, rel_target)))
+                    if resolved_part.startswith('ppt/charts/chart') and resolved_part in xml:
+                        chart_xml = xml[resolved_part]
+                        slide_texts += [t.text or '' for t in chart_xml.findall('.//a:t', NS)]
+                        slide_texts += [v.text or '' for v in chart_xml.findall('.//c:tx//c:v', NS)]
+            content = ' '.join(slide_texts).casefold()
             warnings += [f'slide {number}: possible unfinished template text: {m}' for m in markers
                          if m.casefold() in content]
     return stats, warnings

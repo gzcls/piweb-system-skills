@@ -1,6 +1,6 @@
 # huaxin-pptx
 
-用于制作华新品牌风格可编辑 PPTX 的 Agent Skill，当前版本 **2.1.0**（1.x 版本名为 `pptx`，变更说明见 `references/source-notes.md`）。
+用于制作华新品牌风格可编辑 PPTX 的 Agent Skill，当前版本 **2.1.1**（1.x 版本名为 `pptx`，变更说明见 `references/source-notes.md`）。
 
 ## 目录结构
 
@@ -40,6 +40,7 @@ huaxin-pptx/
 
 ```bash
 python scripts/hx_pptx.py example-spec > ../work/spec.json      # 修改为实际内容
+python scripts/hx_pptx.py validate-spec --spec ../work/spec.json # 结构预检，不写输出文件
 python scripts/hx_pptx.py build --spec ../work/spec.json --output ../output/汇报.pptx
 python scripts/check_deck.py ../output/汇报.pptx
 python scripts/office/render_visual.py --pptx ../output/汇报.pptx --output-dir ../output/render --json ../output/evidence.json
@@ -61,6 +62,7 @@ python -B scripts/validate_skill.py
 python -B tests/validator-regression.py
 python -B tests/density-regression.py
 python -B tests/builder-regression.py
+python -B tests/spec-regression.py
 python -B tests/visual-evidence-regression.py
 python -B tests/package-integrity.py
 ```

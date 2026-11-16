@@ -7,6 +7,7 @@
 
 ```bash
 python scripts/hx_pptx.py example-spec > ../work/spec.json      # 完整示例
+python scripts/hx_pptx.py validate-spec --spec ../work/spec.json # 只读结构预检，VALID/退出0 或 SPEC_ERROR/退出2
 python scripts/hx_pptx.py build --spec ../work/spec.json --output ../output/deck.pptx [--force]
 python scripts/hx_pptx.py slots --slide 9                        # 查看模板第 9 页可替换的槽位
 ```
@@ -37,9 +38,17 @@ python scripts/hx_pptx.py slots --slide 9                        # 查看模板�
 | `template` | 模板任意页 | `source*`（页码），`title`，`number`，`texts`（`{"槽位号": "新文本"}`），`delete`（槽位号数组），`charts`，`tables`，`source_note`，`notes` | 先运行 `slots` 查看槽位；含图表的模板页只能复用一次；低于 11 pt 的替换文字会被提升到 11 pt |
 | `closing` | 模板第 30 页 | `title`（默认“感谢聆听”），`subtitle` | 删除 “Thank you” |
 
-`template` 页中，`charts` 的每一项为 `{index, categories, series:[{name, values}], chart_title}`，`tables` 的每一项为 `{index, rows:[[...]]}`，`rows` 中填 `null` 表示保留原单元格内容。
+`template` 页中，`charts` 的每一项为 `{index, categories, series:[{name, values}], chart_title, highlight, x_values}`（散点图槽位传 `x_values` 时保留散点图，仅传文本 `categories` 时自动转为同位置折线图），`tables` 的每一项为 `{index, rows:[[...]]}`，`rows` 中填 `null` 表示保留原单元格内容。
 
 ## 4. 正文配方（`content.layout`）
+
+每个版式块必须以 `type` 选择配方，不能使用 `recipe`。图表的 `type` 固定为 `chart`，具体图种放在 `kind`。例如：
+
+```json
+{"type":"chart","kind":"doughnut","unit":"%","period":"示例期间","categories":["A","B"],"series":[{"name":"构成","values":[60,40]}]}
+```
+
+叠放时 `layout` 是对象数组，例如 `[{"type":"kpis","items":[{"value":"60","label":"A"},{"value":"40","label":"B"}]},{"type":"bullets","items":["示例结论"]}]`。`validate-spec` 检查这些输入结构并报告页码和字段路径；它不证明页面容量、模板槽位或视觉质量通过。
 
 正文区：x 0.50，y 0.84，w 9.00，底边 5.02；如果设置了 `conclusion`，结论条高 0.50，其下的内容从 y 1.52 开始。
 
@@ -49,7 +58,7 @@ python scripts/hx_pptx.py slots --slide 9                        # 查看模板�
 | `kpis` | `items`：`{value, unit, label, note, accent}` | 指标块（`HX_TILE_n`），数字 25.5 pt，单位 13.5 pt；强调指标用红色 | 2–4 个；强调指标最多 1 个 |
 | `bullets` | `items`：字符串或 `{title, body, accent}` | 左侧编号胶囊（`HX_PILL_n`）+ 右侧文字，行与行之间用细分隔线 | 1–5 条 |
 | `process` | `steps`：`{label, title, body, accent}` | 横向连线 + 节点胶囊 + 步骤面板（`HX_STEP_n`） | 3–6 步；强调节点最多 1 个 |
-| `chart` | `kind`（column/bar/stacked_column/stacked_bar/line/pie/doughnut），`categories`，`series`，`unit`，`period`，`highlight`（要标红的分类序号），`points`（≤2），`height` | 原生可编辑图表 `HX_CHART_1`，字号 10 pt；有 `points` 时左侧图表宽 5.85、右侧结论面板宽 2.97（`HX_SUPPORTING_CONCLUSION_n`）；单系列柱/条图显示数据标签并隐藏数值轴 | 饼图、环形图只能 1 个系列且不超过 5 类；可用高度不足 1.6 时报错 |
+| `chart` | `kind`（column/bar/stacked_column/stacked_bar/line/pie/doughnut），`categories`，`series`，`unit`，`period`，`highlight`（单系列标红分类序号），`number_format`（可选，默认自动推断），`points`（≤2），`height` | 原生可编辑图表 `HX_CHART_1`，字号 10 pt；条形图默认自上而下排列分类；有 `points` 时左侧图表宽 5.85、右侧结论面板宽 2.97（`HX_SUPPORTING_CONCLUSION_n`）；单系列图直接显示数据标签 | 饼图、环形图只能 1 个系列且不超过 5 类；可用高度不足 1.6 时报错 |
 | `table` | `columns`，`rows`，`col_widths`（比例），`emphasis_rows`，`height` | 原生表格 `HX_TABLE_1`：表头蓝紫底白字，隔行 `#F3F5F9`，首列左对齐，其余列居中 | 不超过 7 列；行高小于 0.30 时报错 |
 | `two_column` | `left`、`right`：`{title, bullets, body}` | 两个面板（`HX_PANEL_1/2`），宽度各 4.41 | 两侧要点合计不超过 5 条 |
 | `image_text` | `image`（本地路径），`image_side`（left/right），`ratio`（16:9 或 4:3），`title`，`bullets`，`body` | 图片裁切填充到圆角框（`HX_IMAGE_FRAME_1`），另一侧为面板 | 要点不超过 5 条；分辨率低于约 110 px/英寸时给出警告 |
@@ -94,7 +103,7 @@ hx.save(prs, "../output/deck.pptx")
 ```
 
 注意：`add_body_slide` 生成的页面会追加到末尾。如果需要插在中间，就在 spec 中按顺序放一个只有标题的 `content` 页，然后取 `prs.slides[i]` 在上面补画。
-其余函数：`add_rounded` 和 `set_corner_radius` 自动换算圆角；`add_image_fill` 裁切填充；`add_rect` 绘制结构矩形；`fill_text` 写入多段落文字；`set_notes` 写演讲备注；`check_title`、`capacity` 计算字数上限；`with hx.use_font("字体名"):` 临时更换补画内容的字体。
+其余函数：`add_chart_panel(slide, x, y, w, h, block, index=1)` 在任意分栏或双图对比槽位绘制带单位行与完整主题样式的原生图表（互不重叠的左右半宽双子图视为 1 组对比图）；`add_rounded` 和 `set_corner_radius` 自动换算圆角；`add_image_fill` 裁切填充；`add_rect` 绘制结构矩形；`fill_text` 写入多段落文字；`set_notes` 写演讲备注；`check_title`、`capacity` 计算字数上限；`with hx.use_font("字体名"):` 临时更换补画内容的字体。
 
 ## 6. 对象命名规范（检查脚本依赖这些名称）
 
