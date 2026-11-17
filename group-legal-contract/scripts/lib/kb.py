@@ -86,13 +86,17 @@ def kb_fingerprint(index_path: str | Path | None = None) -> str:
 
 
 def kb_source_consistency(index_path: str | Path | None = None) -> dict:
-    """Compare the published index and snapshot with the current source KB.
+    """Compare the published index and snapshot with packaged files and optional source KB.
 
-    A previous implementation only compared ``kb_index.json`` to the
-    build-time manifest, so changing ``legal_kb`` after a build went unnoticed.
-    When a source tree is available, every source file is normalized exactly as
-    the published build process does and hashed. Installed/dist-only packages return an
-    explicit ``snapshot_only`` status because no mutable source tree exists.
+    Verifies two layers of integrity:
+    1. Every entry in ``kb_index.json`` exists on disk under the skill package
+       and its raw file bytes match ``entry['sha256']``, and every entry recorded
+       in ``kb_source_manifest.json`` matches ``kb_index.json``.
+    2. When a mutable ``legal_kb`` source tree is available, every source file is
+       normalized (UTF-8 without BOM, LF line endings, single trailing newline)
+       and compared against ``kb_source_manifest.json``. Installed/dist-only
+       packages return ``snapshot_only`` when layer 1 passes and no mutable
+       source tree exists.
     """
     root = _root_for_index(index_path)
     manifest_path = root / "assets" / "kb_source_manifest.json"
@@ -100,11 +104,30 @@ def kb_source_consistency(index_path: str | Path | None = None) -> dict:
         return {"status": "unavailable", "manifest": str(manifest_path), "mismatches": []}
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        indexed = {e.get("source_rel_path"): e.get("sha256") for e in load_index(_index_key(index_path) or None).get("entries", []) if e.get("source_rel_path")}
+        idx_entries = load_index(_index_key(index_path) or None).get("entries", [])
+        indexed = {e.get("source_rel_path"): e.get("sha256") for e in idx_entries if e.get("source_rel_path")}
         mismatches = []
         for item in manifest.get("files", []):
             if indexed.get(item.get("source_rel_path")) != item.get("normalized_sha256"):
                 mismatches.append(item.get("source_rel_path"))
+
+        package_missing: list[str] = []
+        package_mismatches: list[str] = []
+        for entry in idx_entries:
+            rel_path = str(entry.get("path") or "")
+            if not rel_path:
+                continue
+            entry_file = Path(rel_path) if Path(rel_path).is_absolute() else (root / rel_path)
+            label = str(entry.get("source_rel_path") or entry.get("id") or rel_path)
+            if not entry_file.is_file():
+                package_missing.append(label)
+                continue
+            expected_sha = str(entry.get("sha256") or "").strip().lower()
+            if expected_sha and hashlib.sha256(entry_file.read_bytes()).hexdigest() != expected_sha:
+                package_mismatches.append(label)
+
+        mismatches = sorted(set(mismatches) | set(package_missing) | set(package_mismatches))
+
         source_override = os.environ.get("GROUP_LEGAL_CONTRACT_SOURCE_KB", "").strip()
         candidates = [Path(source_override).expanduser()] if source_override else []
         # Repository layout: <repo>/skills/group-legal-contract and
@@ -119,9 +142,11 @@ def kb_source_consistency(index_path: str | Path | None = None) -> dict:
                 "status": "snapshot_only" if not mismatches else "mismatch",
                 "manifest": str(manifest_path),
                 "source_root": None,
-                "checked_count": 0,
+                "checked_count": len(idx_entries),
                 "mismatches": mismatches,
-                "missing": [],
+                "package_missing": package_missing,
+                "package_mismatches": package_mismatches,
+                "missing": package_missing,
                 "extra": [],
             }
 
@@ -140,10 +165,13 @@ def kb_source_consistency(index_path: str | Path | None = None) -> dict:
             text = source_path.read_text(encoding="utf-8")
             if text.startswith("\ufeff"):
                 text = text[1:]
-            raw = text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+            text = text.replace("\r\n", "\n").replace("\r", "\n")
+            if text and not text.endswith("\n"):
+                text += "\n"
+            raw = text.encode("utf-8")
             current[rel] = hashlib.sha256(raw).hexdigest()
         changed = sorted(rel for rel, expected_hash in expected.items() if current.get(rel) != expected_hash and rel in current)
-        missing = sorted(rel for rel in expected if rel not in current)
+        missing = sorted(set(rel for rel in expected if rel not in current) | set(package_missing))
         extra = sorted(rel for rel in current if rel not in expected)
         all_mismatches = sorted(set(mismatches) | set(changed) | set(missing) | set(extra))
         return {
@@ -152,6 +180,8 @@ def kb_source_consistency(index_path: str | Path | None = None) -> dict:
             "source_root": str(source_root),
             "checked_count": len(expected),
             "mismatches": all_mismatches,
+            "package_missing": package_missing,
+            "package_mismatches": package_mismatches,
             "changed": changed,
             "missing": missing,
             "extra": extra,

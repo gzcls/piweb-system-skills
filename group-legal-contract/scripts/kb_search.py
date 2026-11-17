@@ -20,7 +20,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from lib.kb import SKILL_ROOT, load_index
+from lib.kb import load_index, read_entry_text
 
 
 def _split_keywords(queries: list[str]) -> list[str]:
@@ -57,7 +57,6 @@ def search_kb(
     index_path: str | None = None,
 ) -> dict:
     idx = load_index(index_path)
-    skill_root = Path(index_path).resolve().parent.parent if index_path else SKILL_ROOT
     keywords = _split_keywords(queries)
 
     candidates = [
@@ -96,10 +95,7 @@ def search_kb(
         title_text = (e.get("title", "") + " " + " ".join(e.get("aliases", []))).lower()
         title_bonus = sum(2.0 for k in kw_Lowers if k in title_text)
 
-        file_path = skill_root / e["path"]
-        if not file_path.exists():
-            continue
-        text = file_path.read_text(encoding="utf-8")
+        text = read_entry_text(e, index_path)
         lines = text.splitlines()
 
         file_hits: list[dict] = []

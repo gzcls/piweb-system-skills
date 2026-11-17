@@ -61,37 +61,37 @@
       "source_rel_path": "01_法律法规库/01_民商事基础/中华人民共和国公司法（2023修订）.md",
       "kind": "law",
       "entry_id": "L0101",
-      "normalized_sha256": "254bc51129b0cb8e8966fd4adf15e62b24061bead62d83da7c2e059b68b68170"
+      "normalized_sha256": "5188171f985b76d2941a03ace7be2af86b85cad8eb4c5290705f338e230bb2de"
     },
     {
       "source_rel_path": "01_法律法规库/01_民商事基础/中华人民共和国民法典_合同编及总则编核心条文.md",
       "kind": "law",
       "entry_id": "L0102",
-      "normalized_sha256": "f7ee29290f603078122fe719994875cd73baf8cc715c8c447541a27655c51419"
+      "normalized_sha256": "e111709b602f5d714cb30041e9e224be2060bbd10940e1afb5fa05ea997b7e2b"
     },
     {
       "source_rel_path": "01_法律法规库/01_民商事基础/最高人民法院关于适用《中华人民共和国公司法》时间效力的若干规定.md",
       "kind": "law",
       "entry_id": "L0103",
-      "normalized_sha256": "6be341d4ca2a11e2b73b17ed760041e64feb9030d0bbd0070c1cff882aa38a74"
+      "normalized_sha256": "366fb3f8b09af98dc49e291f53f6297c4cd9876a57e5dfc2a88948f92adf4bc6"
     },
     {
       "source_rel_path": "01_法律法规库/01_民商事基础/最高人民法院关于适用《中华人民共和国民法典》侵权责任编的解释（一）.md",
       "kind": "law",
       "entry_id": "L0104",
-      "normalized_sha256": "90cae86f70b0665c568d107a7310aceea0bebc972aea8079bd88d5ce1722a4ea"
+      "normalized_sha256": "8538531d771604c006c6f784fe18f823ecb1cbdd44f939b441d8002f05fb875c"
     },
     {
       "source_rel_path": "01_法律法规库/01_民商事基础/最高人民法院关于适用《民法典》合同编通则若干问题的解释.md",
       "kind": "law",
       "entry_id": "L0105",
-      "normalized_sha256": "04beb3c7117f194e650f9741afb32a6ec405c7cc9dc3c9d0905bacba37eadbba"
+      "normalized_sha256": "d632c573509dd52979f528c7bae1db0381d2d756e53096be73af9bf1e6bdf073"
     },
     {
       "source_rel_path": "01_法律法规库/02_劳动与人事/中华人民共和国劳动合同法.md",
       "kind": "law",
       "entry_id": "L0201",
-      "normalized_sha256": "d10ffec6093211f7004f6109edca9d622f658f8f8ecb21dac518e0e8afdcf550"
+      "normalized_sha256": "f40e80854bb276da0746461b622cd17c49af1a4f19b681344374450359287e83"
     },
     {
       "source_rel_path": "01_法律法规库/02_劳动与人事/劳动争议司法解释核心汇编.md",
@@ -103,19 +103,19 @@
       "source_rel_path": "01_法律法规库/02_劳动与人事/最高人民法院关于审理劳动争议案件适用法律问题的解释（一）.md",
       "kind": "law",
       "entry_id": "L0203",
-      "normalized_sha256": "5377804ee8d605942251799451fa5c1feab36efbe21cccd9666c91be1d52b48b"
+      "normalized_sha256": "8f4499ef40d8bec1de05d609d8e7de18aa77566e72153809e695037f5c955e87"
     },
     {
       "source_rel_path": "01_法律法规库/02_劳动与人事/最高人民法院关于审理劳动争议案件适用法律问题的解释（二）.md",
       "kind": "law",
       "entry_id": "L0204",
-      "normalized_sha256": "0e1799a1d9e3a6e304fc7228dc69ee46b6b8cdeb4e0bbdc5da89a3771b1ecc8a"
+      "normalized_sha256": "e56e3e36a1ec68ae96584ca5b8e13ab2ea7cf46e55162317de03f49f65ab5fdf"
     },
     {
       "source_rel_path": "01_法律法规库/03_数据合规与网络安全/中华人民共和国个人信息保护法.md",
       "kind": "law",
       "entry_id": "L0301",
-      "normalized_sha256": "833e304d1a0a757de0adfcb711c17041afd40fb1fc5ee2d750350e0717970dae"
+      "normalized_sha256": "5f401ffb4abd56b2395bab3025619d9e2e5fb96b8c8e19aa9e067e227dd5c031"
     },
     {
       "source_rel_path": "01_法律法规库/03_数据合规与网络安全/中华人民共和国数据安全法.md",
@@ -127,25 +127,25 @@
       "source_rel_path": "01_法律法规库/03_数据合规与网络安全/中华人民共和国网络安全法.md",
       "kind": "law",
       "entry_id": "L0303",
-      "normalized_sha256": "9ef1308ff350e83a3e4ccc5ba2e3cd78f0203c331d20d0ee5201748ae798eaa0"
+      "normalized_sha256": "032c0368fd0ecf92c603b4121b5db29257038d29247d65c33cd9ae9531ce28e5"
     },
     {
       "source_rel_path": "01_法律法规库/03_数据合规与网络安全/促进和规范数据跨境流动规定（网信办）.md",
       "kind": "law",
       "entry_id": "L0304",
-      "normalized_sha256": "124197367fb4801583d31791a021aa9d192ed1aba11bd0e2c93e376f2cd17b74"
+      "normalized_sha256": "215ddd26fc740673fcb4ed090a4c83b6e80008d5938322b295696468d4c5b912"
     },
     {
       "source_rel_path": "01_法律法规库/03_数据合规与网络安全/网络数据安全管理条例（国务院令第790号）.md",
       "kind": "law",
       "entry_id": "L0305",
-      "normalized_sha256": "32acb5078e792be5f121023e0307a281efb0c67bedb488b22b9c9d43661c360e"
+      "normalized_sha256": "42a482d3daddd2d08ccb1e9048894672e9e4d2edab018a9b5f808cff46b49e2f"
     },
     {
       "source_rel_path": "01_法律法规库/04_知识产权与反不正当竞争/中华人民共和国反不正当竞争法.md",
       "kind": "law",
       "entry_id": "L0401",
-      "normalized_sha256": "3883fe010628ea83af1eb385348da896898ce29c966348c0bd8bc158cb05efe8"
+      "normalized_sha256": "174fcb70bb98b87cb0bac47a71138248861f582f68c2eedf92a2c58dd6ebe515"
     },
     {
       "source_rel_path": "01_法律法规库/04_知识产权与反不正当竞争/商业秘密与知识产权保护核心条文.md",
@@ -175,13 +175,13 @@
       "source_rel_path": "01_法律法规库/05_地产与建设工程/最高人民法院关于审理建设工程施工合同纠纷案件适用法律问题的解释（一）.md",
       "kind": "law",
       "entry_id": "L0504",
-      "normalized_sha256": "a36e1383e7dec501dd7e904cd0dca33b4bd36458c29ec36962290c6a12c28c10"
+      "normalized_sha256": "7e1f0c46d70e9b6908a1a2de15b435e18d6a6a7e497b649370bfc3b973fd8136"
     },
     {
       "source_rel_path": "01_法律法规库/05_地产与建设工程/最高人民法院关于审理建设工程施工合同纠纷案件适用法律问题的解释（二）.md",
       "kind": "law",
       "entry_id": "L0505",
-      "normalized_sha256": "fb8da209571010230ade751060952b476a4df5f52e3ae99cf77910b7e85d3480"
+      "normalized_sha256": "964eec2038287c040b943d65a1dd99566244622042f02943d79987a35fa103cd"
     },
     {
       "source_rel_path": "01_法律法规库/05_地产与建设工程/最高人民法院关于审理物业服务及建筑物区分所有权纠纷案件适用法律若干问题的解释（2020修正）.md",
@@ -193,7 +193,7 @@
       "source_rel_path": "01_法律法规库/05_地产与建设工程/物业管理条例（2018修正）.md",
       "kind": "law",
       "entry_id": "L0507",
-      "normalized_sha256": "1482ce73f411cd9673464164f5ff5bb907e697a41812bf5e7882b25928b50bf6"
+      "normalized_sha256": "97ab9a8cee47b67d65836238898f0194e08acd6276346b16184d031ae477d09f"
     },
     {
       "source_rel_path": "01_法律法规库/06_医院与医疗卫生/医疗卫生机构医药采购与医疗损害责任核心法条汇编.md",
@@ -205,7 +205,7 @@
       "source_rel_path": "01_法律法规库/06_医院与医疗卫生/医疗纠纷预防和处理条例（国务院令第701号）.md",
       "kind": "law",
       "entry_id": "L0602",
-      "normalized_sha256": "300d72c8a8c742b4f7bfca55e136f2a7d666c4052b4a46852530c2407364ca44"
+      "normalized_sha256": "1dfbdca21a60aab51afdf8b59c96ed21861a2535e8b8bc31139de24107fa92f4"
     },
     {
       "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/中华人民共和国食品安全法（2025修正）.md",
@@ -217,7 +217,7 @@
       "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/商业特许经营管理条例（国务院令第485号）.md",
       "kind": "law",
       "entry_id": "L0702",
-      "normalized_sha256": "e9d1fa59af33d6e7f4e920e9144fbe375a2c16695dd227a3e266a0983740b08a"
+      "normalized_sha256": "971f2f368b7ea8f6c2365abfc225af68fe2fb5e2876cc5deefa42ef9a8073ce0"
     },
     {
       "source_rel_path": "01_法律法规库/07_餐饮与食品连锁/最高人民法院关于审理预付式消费民事纠纷案件适用法律若干问题的解释.md",
@@ -241,13 +241,13 @@
       "source_rel_path": "01_法律法规库/08_制造安全与投融资/中华人民共和国产品质量法（2018修正）.md",
       "kind": "law",
       "entry_id": "L0801",
-      "normalized_sha256": "e8cfd68c5ae68fd8a9de2d05fe96465afccb2abc22cc36dc51c4afc219f59916"
+      "normalized_sha256": "74ac57bb356bea7af03f91a9395c230127858c7ae1ea779bee8f9ace9608b24d"
     },
     {
       "source_rel_path": "01_法律法规库/08_制造安全与投融资/中华人民共和国安全生产法（2021修正）.md",
       "kind": "law",
       "entry_id": "L0802",
-      "normalized_sha256": "313abb40a23900e339e9f53e721b21ba5d6dcdac83fc20c2810417f7b6ee8118"
+      "normalized_sha256": "cdc32b9de02cac2436f005668d4ebd1f54923218c414b97970cfb58d0096f50a"
     },
     {
       "source_rel_path": "01_法律法规库/08_制造安全与投融资/全国法院民商事审判工作会议纪要（九民纪要_对赌与公司担保核心条文）.md",
@@ -259,13 +259,13 @@
       "source_rel_path": "01_法律法规库/09_农业与储备粮/中华人民共和国农产品质量安全法（2022修订）.md",
       "kind": "law",
       "entry_id": "L0901",
-      "normalized_sha256": "42f91307d73641096694c0ec2c21725bc0949fde3d0173a174e6b40e80367e7d"
+      "normalized_sha256": "c01eaeb6ea4bef668034601f05f881bbcb3166663d2e07c102b950851f5f1f1e"
     },
     {
       "source_rel_path": "01_法律法规库/09_农业与储备粮/中华人民共和国粮食安全保障法（2024施行）.md",
       "kind": "law",
       "entry_id": "L0902",
-      "normalized_sha256": "fea2ed6f8d5aca96d49dd10d8e68df5412ca89773cbc0bf045fd87381bbac74b"
+      "normalized_sha256": "9f68ea1dca78f4e15f2e3ce4b8b41b3dd9faaa3b6eaf08d16d17289e439a20fb"
     },
     {
       "source_rel_path": "01_法律法规库/09_农业与储备粮/政府储备粮食仓储管理办法（国家粮储局）.md",
@@ -277,7 +277,7 @@
       "source_rel_path": "01_法律法规库/09_农业与储备粮/粮食流通管理条例（国务院令第740号）.md",
       "kind": "law",
       "entry_id": "L0904",
-      "normalized_sha256": "348a90ccbf41251b4709cd83ea3bc7aaddc96394cefcc56982a3f77fd21d4ad1"
+      "normalized_sha256": "1b3d49be4dc4b7a4a372554a7243f40989968fa1f2a1470fe979f2490408fdd2"
     },
     {
       "source_rel_path": "04_集团板块专属库/01_地产建筑板块/EPC工程总承包与设计勘察及大宗物业收购合规审查清单.md",

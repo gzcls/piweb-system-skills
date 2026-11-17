@@ -326,7 +326,17 @@ def _parse_batch_spec(raw_specs: list[str]) -> list[dict]:
             chunks.append(sys.stdin.read())
             continue
         cand_path = Path(s)
-        if cand_path.is_file():
+        if s[0] in "[{" or "\n" in s or "\r" in s:
+            is_file = False
+        else:
+            try:
+                is_file = cand_path.is_file()
+            except (OSError, ValueError):
+                # 路径探测失败（例如内联表达式超过单文件名长度上限触发 ENAMETOOLONG）时，
+                # 将其作为内联查询表达式交给后续解析。
+                is_file = False
+
+        if is_file:
             chunks.append(cand_path.read_text(encoding="utf-8-sig"))
         else:
             chunks.append(s)

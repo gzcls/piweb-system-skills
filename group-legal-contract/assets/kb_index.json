@@ -192,7 +192,7 @@
         "capital-increase",
         "equity-transfer"
       ],
-      "sha256": "254bc51129b0cb8e8966fd4adf15e62b24061bead62d83da7c2e059b68b68170",
+      "sha256": "5188171f985b76d2941a03ace7be2af86b85cad8eb4c5290705f338e230bb2de",
       "est_tokens": 31103
     },
     {
@@ -245,7 +245,7 @@
         "sale",
         "tech"
       ],
-      "sha256": "f7ee29290f603078122fe719994875cd73baf8cc715c8c447541a27655c51419",
+      "sha256": "e111709b602f5d714cb30041e9e224be2060bbd10940e1afb5fa05ea997b7e2b",
       "est_tokens": 106144
     },
     {
@@ -286,7 +286,7 @@
         "capital-increase",
         "equity-transfer"
       ],
-      "sha256": "6be341d4ca2a11e2b73b17ed760041e64feb9030d0bbd0070c1cff882aa38a74",
+      "sha256": "366fb3f8b09af98dc49e291f53f6297c4cd9876a57e5dfc2a88948f92adf4bc6",
       "est_tokens": 2636
     },
     {
@@ -316,7 +316,7 @@
         "ehs",
         "sale"
       ],
-      "sha256": "90cae86f70b0665c568d107a7310aceea0bebc972aea8079bd88d5ce1722a4ea",
+      "sha256": "8538531d771604c006c6f784fe18f823ecb1cbdd44f939b441d8002f05fb875c",
       "est_tokens": 4109
     },
     {
@@ -348,7 +348,7 @@
         "commodity-trade",
         "sale"
       ],
-      "sha256": "04beb3c7117f194e650f9741afb32a6ec405c7cc9dc3c9d0905bacba37eadbba",
+      "sha256": "d632c573509dd52979f528c7bae1db0381d2d756e53096be73af9bf1e6bdf073",
       "est_tokens": 16015
     },
     {
@@ -374,7 +374,7 @@
         "labor",
         "outsourcing"
       ],
-      "sha256": "d10ffec6093211f7004f6109edca9d622f658f8f8ecb21dac518e0e8afdcf550",
+      "sha256": "f40e80854bb276da0746461b622cd17c49af1a4f19b681344374450359287e83",
       "est_tokens": 10886
     },
     {
@@ -440,7 +440,7 @@
       "contract_types": [
         "labor"
       ],
-      "sha256": "5377804ee8d605942251799451fa5c1feab36efbe21cccd9666c91be1d52b48b",
+      "sha256": "8f4499ef40d8bec1de05d609d8e7de18aa77566e72153809e695037f5c955e87",
       "est_tokens": 7545
     },
     {
@@ -470,7 +470,7 @@
         "labor",
         "outsourcing"
       ],
-      "sha256": "0e1799a1d9e3a6e304fc7228dc69ee46b6b8cdeb4e0bbdc5da89a3771b1ecc8a",
+      "sha256": "e56e3e36a1ec68ae96584ca5b8e13ab2ea7cf46e55162317de03f49f65ab5fdf",
       "est_tokens": 3206
     },
     {
@@ -498,7 +498,7 @@
         "mcn",
         "tech"
       ],
-      "sha256": "833e304d1a0a757de0adfcb711c17041afd40fb1fc5ee2d750350e0717970dae",
+      "sha256": "5f401ffb4abd56b2395bab3025619d9e2e5fb96b8c8e19aa9e067e227dd5c031",
       "est_tokens": 9134
     },
     {
@@ -551,7 +551,7 @@
         "data",
         "tech"
       ],
-      "sha256": "9ef1308ff350e83a3e4ccc5ba2e3cd78f0203c331d20d0ee5201748ae798eaa0",
+      "sha256": "032c0368fd0ecf92c603b4121b5db29257038d29247d65c33cd9ae9531ce28e5",
       "est_tokens": 10628
     },
     {
@@ -577,7 +577,7 @@
       "contract_types": [
         "data"
       ],
-      "sha256": "124197367fb4801583d31791a021aa9d192ed1aba11bd0e2c93e376f2cd17b74",
+      "sha256": "215ddd26fc740673fcb4ed090a4c83b6e80008d5938322b295696468d4c5b912",
       "est_tokens": 1849
     },
     {
@@ -606,7 +606,7 @@
         "data",
         "tech"
       ],
-      "sha256": "32acb5078e792be5f121023e0307a281efb0c67bedb488b22b9c9d43661c360e",
+      "sha256": "42a482d3daddd2d08ccb1e9048894672e9e4d2edab018a9b5f808cff46b49e2f",
       "est_tokens": 9428
     },
     {
@@ -635,7 +635,7 @@
         "nda",
         "sale"
       ],
-      "sha256": "3883fe010628ea83af1eb385348da896898ce29c966348c0bd8bc158cb05efe8",
+      "sha256": "174fcb70bb98b87cb0bac47a71138248861f582f68c2eedf92a2c58dd6ebe515",
       "est_tokens": 5796
     },
     {
@@ -809,7 +809,7 @@
         "construction",
         "epc"
       ],
-      "sha256": "a36e1383e7dec501dd7e904cd0dca33b4bd36458c29ec36962290c6a12c28c10",
+      "sha256": "7e1f0c46d70e9b6908a1a2de15b435e18d6a6a7e497b649370bfc3b973fd8136",
       "est_tokens": 5351
     },
     {
@@ -840,7 +840,7 @@
         "construction",
         "epc"
       ],
-      "sha256": "fb8da209571010230ade751060952b476a4df5f52e3ae99cf77910b7e85d3480",
+      "sha256": "964eec2038287c040b943d65a1dd99566244622042f02943d79987a35fa103cd",
       "est_tokens": 3420
     },
     {
@@ -919,7 +919,7 @@
         "lease",
         "property-mgmt"
       ],
-      "sha256": "1482ce73f411cd9673464164f5ff5bb907e697a41812bf5e7882b25928b50bf6",
+      "sha256": "97ab9a8cee47b67d65836238898f0194e08acd6276346b16184d031ae477d09f",
       "est_tokens": 6899
     },
     {
@@ -1000,7 +1000,7 @@
       "contract_types": [
         "clinical"
       ],
-      "sha256": "300d72c8a8c742b4f7bfca55e136f2a7d666c4052b4a46852530c2407364ca44",
+      "sha256": "1dfbdca21a60aab51afdf8b59c96ed21861a2535e8b8bc31139de24107fa92f4",
       "est_tokens": 7186
     },
     {
@@ -1053,7 +1053,7 @@
       "contract_types": [
         "franchise"
       ],
-      "sha256": "e9d1fa59af33d6e7f4e920e9144fbe375a2c16695dd227a3e266a0983740b08a",
+      "sha256": "971f2f368b7ea8f6c2365abfc225af68fe2fb5e2876cc5deefa42ef9a8073ce0",
       "est_tokens": 3375
     },
     {
@@ -1168,7 +1168,7 @@
         "oem",
         "sale"
       ],
-      "sha256": "e8cfd68c5ae68fd8a9de2d05fe96465afccb2abc22cc36dc51c4afc219f59916",
+      "sha256": "74ac57bb356bea7af03f91a9395c230127858c7ae1ea779bee8f9ace9608b24d",
       "est_tokens": 7820
     },
     {
@@ -1194,7 +1194,7 @@
         "construction",
         "ehs"
       ],
-      "sha256": "313abb40a23900e339e9f53e721b21ba5d6dcdac83fc20c2810417f7b6ee8118",
+      "sha256": "cdc32b9de02cac2436f005668d4ebd1f54923218c414b97970cfb58d0096f50a",
       "est_tokens": 19319
     },
     {
@@ -1299,7 +1299,7 @@
         "agri-land",
         "food-procurement"
       ],
-      "sha256": "42f91307d73641096694c0ec2c21725bc0949fde3d0173a174e6b40e80367e7d",
+      "sha256": "c01eaeb6ea4bef668034601f05f881bbcb3166663d2e07c102b950851f5f1f1e",
       "est_tokens": 12323
     },
     {
@@ -1325,7 +1325,7 @@
         "agri-land",
         "grain-storage"
       ],
-      "sha256": "fea2ed6f8d5aca96d49dd10d8e68df5412ca89773cbc0bf045fd87381bbac74b",
+      "sha256": "9f68ea1dca78f4e15f2e3ce4b8b41b3dd9faaa3b6eaf08d16d17289e439a20fb",
       "est_tokens": 9277
     },
     {
@@ -1377,7 +1377,7 @@
       "contract_types": [
         "grain-storage"
       ],
-      "sha256": "348a90ccbf41251b4709cd83ea3bc7aaddc96394cefcc56982a3f77fd21d4ad1",
+      "sha256": "1b3d49be4dc4b7a4a372554a7243f40989968fa1f2a1470fe979f2490408fdd2",
       "est_tokens": 8648
     },
     {
