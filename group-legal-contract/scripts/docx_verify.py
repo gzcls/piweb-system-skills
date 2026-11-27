@@ -265,6 +265,7 @@ def simulate_accept_all(
                 com_root.remove(com_el)
         if not orig_had_comments_part and len(com_root.findall(w_tag("comment"))) == 0:
             pkg.remove_part("word/comments.xml")
+            pkg.remove_part("word/_rels/comments.xml.rels")
             rels_root = pkg.get_xml("word/_rels/document.xml.rels")
             if rels_root is not None:
                 for rel in list(rels_root):

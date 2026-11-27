@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -20,6 +21,46 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from docx_visual_verify import inspect_docx  # noqa: E402
+
+_CONSTRAINED_CGROUP_MEMORY_BYTES = 2 * 1024 * 1024 * 1024  # 2 GiB
+
+
+def _detect_cgroup_memory_limit_bytes() -> int | None:
+    """读取 Linux 容器 cgroup v2/v1 内存上限；非容器或无上限时返回 None。"""
+    for candidate in (
+        Path("/sys/fs/cgroup/memory.max"),
+        Path("/sys/fs/cgroup/memory/memory.limit_in_bytes"),
+    ):
+        try:
+            raw = candidate.read_text(encoding="utf-8").strip()
+        except OSError:
+            continue
+        if not raw or raw == "max":
+            continue
+        try:
+            value = int(raw)
+        except ValueError:
+            continue
+        # cgroup v1 无上限常返回接近 INT64_MAX 的极大值（> 1 PiB）
+        if 0 < value < (1 << 50):
+            return value
+    return None
+
+
+def _resolve_default_workers() -> int:
+    """在内存受限沙箱容器（<= 2 GiB）默认串行渲染，防止并发 LibreOffice OOM。"""
+    env_raw = os.environ.get("GROUP_LEGAL_VISUAL_WORKERS", "").strip()
+    if env_raw:
+        try:
+            parsed = int(env_raw)
+            if parsed >= 1:
+                return min(4, parsed)
+        except ValueError:
+            pass
+    limit = _detect_cgroup_memory_limit_bytes()
+    if limit is not None and limit <= _CONSTRAINED_CGROUP_MEMORY_BYTES:
+        return 1
+    return 4
 
 
 def verify_many(
@@ -34,7 +75,7 @@ def verify_many(
     # 同一交付文件可能同时被 docx_verify 和最终批量检查传入；批量阶段
     # 只渲染一次，保留去重数量便于审计耗时优化。
     normalized = list(dict.fromkeys(requested))
-    requested_workers = max_workers or 4
+    requested_workers = max_workers if max_workers is not None else _resolve_default_workers()
     workers = min(max(1, requested_workers), 4, max(1, len(normalized)))
     results: dict[str, Any] = {}
     with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="docx-visual") as pool:

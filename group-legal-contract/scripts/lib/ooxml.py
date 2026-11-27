@@ -2096,6 +2096,27 @@ def reassign_colliding_bookmark_ids(pkg: DocxPackage) -> bool:
 
 def normalize_ooxml_package(pkg: DocxPackage, unwrap_wps_ac: bool = False) -> None:
     """对 DocxPackage 中的所有 word/*.xml 部件执行 ECMA-376 规范化。"""
+    # 清理主部件不存在的孤儿 relationships 部件（如 WPS 残留的空 word/_rels/comments.xml.rels）
+    present_parts = set(pkg.raw_parts.keys()) | set(pkg.xml_parts.keys())
+    for part_name in list(present_parts):
+        source_part = _zip_part_name_from_rels(part_name)
+        if source_part is not None and source_part not in present_parts:
+            pkg.remove_part(part_name)
+            present_parts.discard(part_name)
+
+    # 清理 [Content_Types].xml 中指向不存在部件的悬空 Override
+    ct_root = pkg.get_xml("[Content_Types].xml")
+    if ct_root is not None:
+        ct_changed = False
+        for child in list(ct_root):
+            if etree.QName(child).localname == "Override":
+                part_attr = (child.get("PartName") or "").lstrip("/")
+                if part_attr and part_attr not in present_parts:
+                    ct_root.remove(child)
+                    ct_changed = True
+        if ct_changed:
+            pkg.mark_modified("[Content_Types].xml")
+
     if "word/comments.xml" in pkg.raw_parts or "word/comments.xml" in pkg.xml_parts:
         ensure_comment_styles_in_styles_xml(pkg)
 

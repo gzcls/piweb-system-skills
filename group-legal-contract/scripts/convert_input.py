@@ -77,6 +77,11 @@ def convert_to_docx(
     if suffix == ".docx":
         atomic_write_bytes(target, source.read_bytes())
         validation = validate_docx_file(target, strict=True)
+        sanitized = False
+        if not validation["valid"] and validation["zip_ok"] and validation["xml_well_formed"]:
+            sanitize_docx_file(target, unwrap_wps_ac=False)
+            validation = validate_docx_file(target, strict=True)
+            sanitized = True
         if not validation["valid"]:
             raise ValueError(f"输入 .docx 校验失败: {'; '.join(validation['errors'])}")
         return {
@@ -84,6 +89,7 @@ def convert_to_docx(
             "output": str(target),
             "source_format": ".docx",
             "converted": False,
+            "sanitized": sanitized,
             "validation": validation,
         }
 

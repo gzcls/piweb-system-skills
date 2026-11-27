@@ -153,4 +153,5 @@ python3 <SKILL_DIR>/scripts/contract_review_pipeline.py "<输入合同.doc>" \
      --report "<输出目录>/work/verify_report.json" \
      --clean-out "<输出目录>/《合同名》_清洁版.docx"
    ```
+   > **排障注意**：`docx_verify.py` 的 `stdout` 仅输出精简摘要（不含 `checks` 字段），查看 `checks.structure` / `checks.accept_all` 等明细必须读取 `--report` 写入的 `work/verify_report.json`，不要通过 `2>&1 | python3 -c ...` 解析 `stdout`。如需运行多行 Python 检查脚本，请写入工作区 `.py` 文件执行，不要拼接多行 `python3 -c "..."` 字符串。
 5. **交付展示**：向用户展示核心审查结论摘要（综合评级、Top 红线风险、修订应用统计与 `work/time-summary.md` 耗时统计），并提供输出目录中的三份 `.docx` 交付文件路径。

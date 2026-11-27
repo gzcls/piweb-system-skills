@@ -107,6 +107,9 @@
 2. **单一来源台账（`work/review-draft.json`）**：
    - 模型只需编写一份 `work/review-draft.json`（结构见 [../../assets/schemas/review-draft.schema.json](../../assets/schemas/review-draft.schema.json)），包含全局元数据、`executive_summary`（总体评价叙述）和 `revisions` 数组（每项可附 `clause_ref`、`missing_clause_title`、`top_risk_title`）。
    - 运行 `build_review_outputs.py` 或 `contract_review_pipeline.py --draft` 即可确定性派生 `revisions.json`、`review-result.json` 与 `review_report.md`。
+3. **修订引擎确定性保证（严禁建临时样本试探）**：
+   - 同一 `block_id` 支持多条不重叠行内修订（引擎自动从后往前应用并计算字符级最小 diff）；`insert_paragraph_after` / `before` 的 `new_paragraphs` 数组及同锚点多条插入均严格按正序排列。
+   - **严禁**手工构造 `revisions.json` 或创建临时 `.docx` 做黑盒测试；`python-docx` 的 `p.text` 会忽略 `<w:ins>`/`<w:del>`，抽检接受修订后的文本只能读取 `docx_verify.py --clean-out` 生成的清洁版。
 
 ---
 

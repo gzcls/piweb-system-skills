@@ -27,6 +27,14 @@
 | `delete_paragraph` | 整段属于违法无效或严重损害我方利益且无法通过局部修改挽救的条款 | `anchor.block_id`, `comment` |
 | `comment_only` | 需业务部门核实确认商业参数（如价格、工期、技术指标）、需提示背景风险但不宜直接代改文字，或原段落存在复杂域/已有修订 | `anchor.block_id`（可选 `anchor.match`），`comment` |
 
+### 确定性修订引擎行为保证（无需测试或查阅脚本源码）
+
+1. **同段多处修订自动无损合并**：同一 `block_id` 段落内可提交多条不重叠的 `replace` / `delete` / `insert_text` 指令，`docx_redline.py` 内部会先在原段定位区间再按字符偏移**从后往前**应用，且 `replace` 自动计算字符级最小 diff（保留公共前后缀，仅包裹差异字词）。若同段两条指令区间重叠，后一条会自动安全降级为批注。
+2. **多段插入严格正序**：`insert_paragraph_after` / `insert_paragraph_before` 的 `new_paragraphs` 数组严格按数组正序依次插入；同一锚点段落若有多条 `insert_paragraph_after`，亦按指令出现顺序依次排列在锚点段之后（默认继承锚点段或 `style_from` 段落样式与缩进）。
+3. **禁止手造实验样本与错误校验方式**：
+   - `revisions.json` 必须由 `build_review_outputs.py` 从 `review-draft.json` 确定性派生，**严禁**手工构造 `revisions.json` 或创建 `exp` / `test` 临时 `.docx` 试跑探测；
+   - `python-docx` 的 `Paragraph.text` 只读取直接子级 `<w:r>` 而忽略 `<w:ins>` / `<w:del>` 修订文本，**严禁**直接用 `Document(revised.docx)` 读取 `p.text` 判断修订结果；如需抽检接受修订后的正文，只能读取 `docx_verify.py --clean-out` 导出的清洁版。
+
 ---
 
 ## 三、 批注（`comment`）结构与写作标准
